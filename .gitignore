@@ -1,0 +1,10 @@
+.DS_Store
+*.o
+output/
+*.pid
+serial.log
+disk-qemu
+disk-qemu.vmdk
+ifs.bin
+*.log
+TARGET.local.md

@@ -1,0 +1,2 @@
+# Include OpenSSH privsep helper required by newer sshd (missing from stock mkqnximage ssh section).
+bin/sshd-auth=usr/libexec/sshd-auth

@@ -1,0 +1,2 @@
+# sshd looks for /usr/libexec/sshd-auth on the root IFS; point it at the system copy.
+[type=link] /usr/libexec/sshd-auth=/system/bin/sshd-auth

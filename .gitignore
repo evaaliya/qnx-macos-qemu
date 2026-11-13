@@ -12,6 +12,12 @@ TARGET.local.md
 # Guest binary produced by examples/hello-qnx
 examples/hello-qnx/hello-qnx
 
+# Local demo script. It stays on disk and is never committed.
+docs/DEMO.md
+docs/demo.md
+docs/evidence/DEMO.md
+docs/evidence/demo.md
+
 # Command logs under docs/evidence/ are tracked on purpose. They hold
 # tool output from this repo, not passwords or keys.
 !docs/evidence/*.log

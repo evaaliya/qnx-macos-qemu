@@ -1,0 +1,17 @@
+---> Starting slogger2
+---> Starting PCI Services
+---> Starting fsevmgr
+# ---> Starting devb
+---> Mounting file systems
+Path=0 - 
+ target=0 lun=0     Direct-Access(0) - VIRTIO  Rev: 
+---> Mounting file systems
+---> Starting Networking
+---> Starting sshd
+---> Starting misc
+
+To exit QEMU, type <ctrl>a x
+
+Process count:20
+Startup complete
+QNX qnx-a64 8.0.0 2026/06/05-16:21:14EDT QEMU_virt aarch64le

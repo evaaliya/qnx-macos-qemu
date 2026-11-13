@@ -1,0 +1,21 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  shell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: shellcheck
+        run: shellcheck scripts/*.sh qemu-aarch64le/run.sh tests/smoke.sh
+      - name: bash -n
+        run: |
+          set -euo pipefail
+          for f in scripts/*.sh qemu-aarch64le/run.sh tests/smoke.sh; do
+            bash -n "$f"
+          done

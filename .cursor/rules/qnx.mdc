@@ -1,0 +1,16 @@
+---
+description: How to build and test QNX SDP 8.0 on this Apple Silicon Mac
+alwaysApply: true
+---
+
+# QNX on this Mac
+
+Bring the guest up with `./scripts/up.sh` and stop it with `./scripts/down.sh`. A working run prints `Hello QNX!`, and `uname -a` on the guest contains `QNX`, `8.0.0`, and `aarch64le`. `pidin` lists `/proc/boot/procnto-smp-instr`.
+
+- Compile with `qcc -Vgcc_ntoaarch64le` inside the `qnx-build` container, after sourcing `/usr/local/qnx/env/bin/activate` and `$HOME/qnx800/qnxsdp-env.sh`. The repository must live under `$HOME`. The container has no `/Users` tree.
+- A QNX binary is ELF ARM aarch64 with interpreter `/usr/lib/ldqnx-64.so.2`.
+- QEMU 11 uses `-machine virt` and the default `-accel tcg -cpu cortex-a57`. On 2026-11-14 `QNX_QEMU_ACCEL=hvf` stopped in `gic_v3.c:966` before SSH came up.
+- Do not commit `output/`, disk images, `ifs.bin`, SSH private keys, `.env`, or myQNX passwords. Credentials stay in `MYQNX_USER` and `MYQNX_PASSWORD`.
+- Do not edit `~/qnx800`, `~/docker-mac`, the `qnx-build` container, or the `qnx800` image by hand.
+- Do not copy `gitlab.com/qnx/projects/docker-mac` into this repo. `scripts/setup-docker.sh` clones it into the cache and patches Ubuntu 20.04 to 22.04 there.
+- Read `docs/PITFALLS.md` before debugging a boot. The serial log is `~/qnxprojects/targets/qemu-qnx800-aarch64le/output/serial.log`.

@@ -1,0 +1,48 @@
+date: 2026-11-13T21:26:37Z
+
+===== sw_vers =====
+ProductName:		macOS
+ProductVersion:		15.8.3
+BuildVersion:		24H314
+arm64
+
+===== qemu-system-aarch64 --version =====
+QEMU emulator version 11.1.3
+Copyright (c) 2003-2026 Fabrice Bellard and the QEMU Project developers
+
+===== docker version =====
+Client:
+ Version:           29.9.3
+ API version:       1.56
+ Go version:        go1.26.10
+ Git commit:        5457199
+ Built:             Tue Nov  3 21:41:57 2026
+ OS/Arch:           darwin/arm64
+ Context:           desktop-linux
+
+Server: Docker Desktop 4.99.0 (245822)
+ Engine:
+  Version:          29.9.3
+  API version:      1.56 (minimum version 1.40)
+  Go version:       go1.26.10
+  Git commit:       70efc0e
+  Built:            Tue Nov  3 21:41:25 2026
+  OS/Arch:          linux/arm64
+  Experimental:     false
+ containerd:
+  Version:          v2.4.2
+  GitCommit:        b7a25261e029d68978bbf290df0a62fc819b3c51
+ runc:
+  Version:          1.5.2
+  GitCommit:        v1.5.2-0-g29dd3dc2
+ docker-init:
+  Version:          0.19.0
+  GitCommit:        de40ad0
+
+===== qcc -V =====
+QNX_HOST=/home/diana/qnx800/host/linux/x86_64
+QNX_TARGET=/home/diana/qnx800/target/qnx
+MAKEFLAGS=-I/home/diana/qnx800/target/qnx/usr/include
+
+===== file examples/hello-qnx/hello-qnx =====
+/Users/diana/qnx-macos-qemu/examples/hello-qnx/hello-qnx: ELF 64-bit LSB pie executable, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /usr/lib/ldqnx-64.so.2, BuildID[md5/uuid]=7f44ca6ce9073ade04fbbe4dd0504df2, with debug_info, not stripped

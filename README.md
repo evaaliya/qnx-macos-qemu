@@ -129,8 +129,8 @@ There is no macOS compiler in SDP 8.0. Builds run inside Docker, where those Lin
 On this machine both were present (`qnxsdp-env.sh` is 1577 bytes, `qcc` is the Linux ELF at that path). Inside the `qnx-build` container, `qcc -V` printed:
 
 ```text
-QNX_HOST=/home/diana/qnx800/host/linux/x86_64
-cc: targets available in /home/diana/qnx800/host/linux/x86_64/etc/qcc:
+QNX_HOST=/home/<user>/qnx800/host/linux/x86_64
+cc: targets available in /home/<user>/qnx800/host/linux/x86_64/etc/qcc:
 	12.2.0,gcc_ntox86_64	(default)
 	12.2.0,gcc_ntoaarch64le
 	12.2.0,gcc_ntox86_64_cxx
@@ -149,9 +149,9 @@ Two more packages are required before the image will build. Search Available for
 **You should see** the files `./scripts/check-prereqs.sh` checks. On this machine:
 
 ```text
-OK   /Users/diana/qnx800/target/qnx/aarch64le/boot/sys/startup-qemu-virt
-OK   /Users/diana/qnx800/target/qnx/aarch64le/sbin/devb-virtio
-OK   /Users/diana/qnx800/target/qnx/aarch64le/usr/libexec/sshd-auth
+OK   ~/qnx800/target/qnx/aarch64le/boot/sys/startup-qemu-virt
+OK   ~/qnx800/target/qnx/aarch64le/sbin/devb-virtio
+OK   ~/qnx800/target/qnx/aarch64le/usr/libexec/sshd-auth
 ```
 
 If you want the script to install a missing package for you:
@@ -178,7 +178,7 @@ pwd
 **You should see** a path under your home directory. On this machine that path is:
 
 ```text
-/Users/diana/qnx-macos-qemu
+~/qnx-macos-qemu
 ```
 
 ## 10. Boot QNX and run the example
@@ -192,8 +192,8 @@ The first time, building the Docker image `qnx800` can take about 30 minutes. `s
 **You should see** `Hello QNX!` from the guest, then `uname` and `pidin`. This is the run from 2026-11-14 after `./scripts/down.sh`. The whole script finished in 15 seconds. It did not rebuild the image. The full log is [docs/evidence/up.log](docs/evidence/up.log). The lines that show the guest are:
 
 ```text
-OK   image already built: /Users/diana/qnxprojects/targets/qemu-qnx800-aarch64le/output/ifs.bin
-==> Starting qemu-system-aarch64 (serial log: /Users/diana/qnxprojects/targets/qemu-qnx800-aarch64le/output/serial.log)
+OK   image already built: ~/qnxprojects/targets/qemu-qnx800-aarch64le/output/ifs.bin
+==> Starting qemu-system-aarch64 (serial log: ~/qnxprojects/targets/qemu-qnx800-aarch64le/output/serial.log)
 OK   SSH is accepting connections
 qcc -Vgcc_ntoaarch64le -Wall -o hello-qnx hello-qnx.c
 Hello QNX!
@@ -221,7 +221,7 @@ uname -a
 Running `./scripts/up.sh` again does not rebuild the image and does not start a second QEMU. The second run on this machine finished in 3 seconds and printed:
 
 ```text
-OK   image already built: /Users/diana/qnxprojects/targets/qemu-qnx800-aarch64le/output/ifs.bin
+OK   image already built: ~/qnxprojects/targets/qemu-qnx800-aarch64le/output/ifs.bin
 OK   QEMU already running (pid 43997)
 Hello QNX!
 QNX qnx-a64 8.0.0 2026/06/05-16:21:14EDT QEMU_virt aarch64le
@@ -278,5 +278,3 @@ GitHub Actions runs `shellcheck` and `bash -n` on the scripts. It does not insta
 ## License
 
 Apache License 2.0. See [LICENSE](LICENSE).
-
-Do not commit myQNX passwords, license files, SSH private keys, or built images. `output/`, `*.vmdk`, `ifs.bin`, `examples/hello-qnx/hello-qnx`, and key files are gitignored. The text logs in `docs/evidence/` are intentionally tracked.

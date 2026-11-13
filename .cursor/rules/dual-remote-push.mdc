@@ -1,5 +1,5 @@
 ---
-description: Always commit and push to both GitHub and GitLab remotes
+description: Always commit but don't fucking push till i say so! when i say so do it to both GitHub and GitLab remotes
 alwaysApply: true
 ---
 

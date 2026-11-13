@@ -78,7 +78,7 @@ What that command does, in order:
 The first Docker build can take about 30 minutes. The QNX image build after that is much shorter. On the test machine the command that stopped the old guest and ran `scripts/build-image.sh` finished in about 19 seconds, and the build log contained:
 
 ```text
-Container build directory: /home/diana/qnxprojects/targets/qemu-qnx800-aarch64le
+Container build directory: /home/<user>/qnxprojects/targets/qemu-qnx800-aarch64le
 Architecture: aarch64le
 ```
 

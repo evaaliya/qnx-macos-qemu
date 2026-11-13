@@ -40,9 +40,9 @@ Server: Docker Desktop 4.99.0 (245822)
   GitCommit:        de40ad0
 
 ===== qcc -V =====
-QNX_HOST=/home/diana/qnx800/host/linux/x86_64
-QNX_TARGET=/home/diana/qnx800/target/qnx
-MAKEFLAGS=-I/home/diana/qnx800/target/qnx/usr/include
+QNX_HOST=/home/<user>/qnx800/host/linux/x86_64
+QNX_TARGET=/home/<user>/qnx800/target/qnx
+MAKEFLAGS=-I/home/<user>/qnx800/target/qnx/usr/include
 
 ===== file examples/hello-qnx/hello-qnx =====
-/Users/diana/qnx-macos-qemu/examples/hello-qnx/hello-qnx: ELF 64-bit LSB pie executable, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /usr/lib/ldqnx-64.so.2, BuildID[md5/uuid]=7f44ca6ce9073ade04fbbe4dd0504df2, with debug_info, not stripped
+~/qnx-macos-qemu/examples/hello-qnx/hello-qnx: ELF 64-bit LSB pie executable, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /usr/lib/ldqnx-64.so.2, BuildID[md5/uuid]=7f44ca6ce9073ade04fbbe4dd0504df2, with debug_info, not stripped

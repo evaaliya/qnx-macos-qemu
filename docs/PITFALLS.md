@@ -78,12 +78,12 @@ After the rebuild on 2026-11-14 those lines are in `output/build/system.build` a
 
 **Symptom.** `docker exec` exits immediately. With `set -e`, nothing after the `cd` runs. `mkqnximage` never starts.
 
-**Cause.** The container bind-mounts the Mac home directory at `/home/<user>`. It does not have `/Users`. Expanding `TARGET_DIR` on the Mac produces `/Users/diana/qnxprojects/...`, and that path does not exist in the container. Confirmed with `docker exec qnx-build` — `cd` to the `/Users/...` path returns `No such file or directory`, while `$HOME` in the container is `/home/diana`.
+**Cause.** The container bind-mounts the Mac home directory at `/home/<user>`. It does not have `/Users`. Expanding `TARGET_DIR` on the Mac produces `~/qnxprojects/...`, and that path does not exist in the container. Confirmed with `docker exec qnx-build` — `cd` to the `/Users/...` path returns `No such file or directory`, while `$HOME` in the container is `/home/<user>`.
 
 **Fix.** `scripts/build-image.sh` strips the home prefix on the Mac and `cd`s to `$HOME/<that relative path>` inside the container. The rebuild log from 2026-11-14 contains:
 
 ```text
-Container build directory: /home/diana/qnxprojects/targets/qemu-qnx800-aarch64le
+Container build directory: /home/<user>/qnxprojects/targets/qemu-qnx800-aarch64le
 ```
 
 The image directory has to live under your home folder. The script stops if it does not.

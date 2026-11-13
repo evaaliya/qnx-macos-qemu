@@ -1,48 +1,130 @@
 #!/usr/bin/env bash
-# Fail fast with the package names novices miss on Apple Silicon + Docker QNX builds.
+# Check the QNX packages a QEMU aarch64le image needs, and install them when asked.
+# myQNX credentials are read from MYQNX_USER and MYQNX_PASSWORD only. They are never written to disk.
 set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck source=scripts/lib.sh
+source "$ROOT/scripts/lib.sh"
 
-SDP="${QNX_SDP:-$HOME/qnx800}"
-ARCH="${QNX_IMAGE_ARCH:-aarch64le}"
 ok=1
+missing_ids=""
 
-need_file() {
-  local path="$1" pkg="$2" hint="$3"
+manual_qemu_packages() {
+  cat <<EOF
+
+myQNX credentials were not used (set both MYQNX_USER and MYQNX_PASSWORD to install from this script).
+They are read from the environment for one command and are not saved.
+
+  export MYQNX_USER='you@example.com'
+  export MYQNX_PASSWORD='your-myqnx-password'
+  ./scripts/check-prereqs.sh
+
+Or install by hand in QNX Software Center:
+  1. Open QNX Software Center and select the SDP 8.0 installation ($QNX_SDP).
+  2. Manage Installation -> Available.
+  3. Search for "qemu".
+  4. Install:
+       com.qnx.qnx800.target.qemuvirt
+         QEMU Virtualization Drivers (Startup) — provides startup-qemu-virt
+       com.qnx.qnx800.target.driver.virtio.devb
+         Virtualization Drivers (Block) — provides devb-virtio
+EOF
+}
+
+note_file() {
+  local path="$1"
+  local pkg="$2"
+  local hint="$3"
   if [[ -e "$path" ]]; then
     echo "OK   $path"
+    return 0
+  fi
+  echo "MISS $path"
+  echo "     $hint"
+  if [[ -n "$pkg" ]]; then
+    echo "     package: $pkg"
+    if [[ -z "$missing_ids" ]]; then
+      missing_ids="$pkg"
+    else
+      missing_ids="$missing_ids,$pkg"
+    fi
   else
-    echo "MISS $path"
-    echo "     Install from QNX Software Center: $pkg"
-    echo "     ($hint)"
     ok=0
   fi
 }
 
-echo "SDP: $SDP"
-need_file \
-  "$SDP/target/qnx/$ARCH/boot/sys/startup-qemu-virt" \
+install_missing() {
+  local clt
+  if [[ ! -f "$QNX_SDP/qnxsdp-env.sh" ]]; then
+    echo "error: $QNX_SDP is not an SDP install (qnxsdp-env.sh is missing)." >&2
+    echo "       Install QNX SDP 8.0 there before adding target packages." >&2
+    manual_qemu_packages
+    ok=0
+    return
+  fi
+  if [[ -z "${MYQNX_USER:-}" || -z "${MYQNX_PASSWORD:-}" ]]; then
+    manual_qemu_packages
+    ok=0
+    return
+  fi
+  if ! clt="$(qnx_find_qsc_clt)"; then
+    echo "error: qnxsoftwarecenter_clt was not found on this Mac." >&2
+    manual_qemu_packages
+    ok=0
+    return
+  fi
+  echo "OK   qnxsoftwarecenter_clt ($clt)"
+  qnx_info "Installing $missing_ids into $QNX_SDP"
+  # Password is an argument because that is the CLT's interface. It is not echoed or stored.
+  if ! "$clt" \
+    -destination "$QNX_SDP" \
+    -myqnx.user "$MYQNX_USER" \
+    -myqnx.password "$MYQNX_PASSWORD" \
+    -installPackage "$missing_ids"; then
+    echo "error: qnxsoftwarecenter_clt -installPackage failed." >&2
+    manual_qemu_packages
+    ok=0
+    return
+  fi
+  missing_ids=""
+  note_file \
+    "$QNX_SDP/target/qnx/$QNX_ARCH/boot/sys/startup-qemu-virt" \
+    "" \
+    "still missing after install"
+  note_file \
+    "$QNX_SDP/target/qnx/$QNX_ARCH/sbin/devb-virtio" \
+    "" \
+    "still missing after install"
+}
+
+echo "SDP: $QNX_SDP"
+note_file \
+  "$QNX_SDP/target/qnx/$QNX_ARCH/boot/sys/startup-qemu-virt" \
   "com.qnx.qnx800.target.qemuvirt" \
   "QEMU Virtualization Drivers (Startup)"
-
-need_file \
-  "$SDP/target/qnx/$ARCH/sbin/devb-virtio" \
+note_file \
+  "$QNX_SDP/target/qnx/$QNX_ARCH/sbin/devb-virtio" \
   "com.qnx.qnx800.target.driver.virtio.devb" \
   "Virtualization Drivers (Block)"
+note_file \
+  "$QNX_SDP/target/qnx/$QNX_ARCH/usr/libexec/sshd-auth" \
+  "" \
+  "OpenSSH helper from the SDP (usually already installed). mkqnximage still needs the snippets in qemu-aarch64le/local/snippets."
 
-need_file \
-  "$SDP/target/qnx/$ARCH/usr/libexec/sshd-auth" \
-  "OpenSSH components in SDP (usually already present)" \
-  "Required helper; mkqnximage stock SSH section may omit packaging it — see local/snippets"
+if [[ -n "$missing_ids" ]]; then
+  install_missing
+fi
 
-if ! command -v qemu-system-aarch64 >/dev/null; then
+if ! command -v qemu-system-aarch64 >/dev/null 2>&1; then
   echo "MISS qemu-system-aarch64 (host). Install: brew install qemu"
   ok=0
 else
-  echo "OK   qemu-system-aarch64 ($(qemu-system-aarch64 --version | head -1))"
+  qver="$(qemu-system-aarch64 --version 2>/dev/null | awk 'NR==1 { print; exit }' || true)"
+  echo "OK   qemu-system-aarch64 ${qver}"
 fi
 
 if ! docker info >/dev/null 2>&1; then
-  echo "MISS Docker daemon (needed for mkqnximage via qnx-build container)"
+  echo "MISS Docker daemon (needed for mkqnximage via the $QNX_BUILD_CONTAINER container)"
   ok=0
 else
   echo "OK   Docker"

@@ -1,0 +1,2 @@
+warning: QNX_QEMU_ACCEL=hvf is not verified with this QNX image. The default is tcg.
+qemu-system-aarch64: terminating on signal 15 from pid 43555 (<unknown process>)

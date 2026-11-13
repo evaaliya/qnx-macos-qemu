@@ -1,0 +1,79 @@
+==> 1/8 Host doctor
+Host: macOS 15.8.3 (arm64)
+OK   Apple Silicon (arm64)
+OK   /Users/diana/qnx800/qnxsdp-env.sh
+OK   Linux host tools (/Users/diana/qnx800/host/linux/x86_64/usr/bin/qcc)
+OK   qemu-system-aarch64 (/opt/homebrew/bin/qemu-system-aarch64)
+OK   docker (/usr/local/bin/docker)
+OK   python3 (/Library/Frameworks/Python.framework/Versions/3.11/bin/python3)
+OK   ssh (/usr/bin/ssh)
+OK   scp (/usr/bin/scp)
+OK   Docker daemon
+
+Host looks ready.
+==> 2/8 Docker build environment
+OK   Docker image qnx800:latest already exists
+OK   container qnx-build is already running
+==> 3/8 QNX target packages
+SDP: /Users/diana/qnx800
+OK   /Users/diana/qnx800/target/qnx/aarch64le/boot/sys/startup-qemu-virt
+OK   /Users/diana/qnx800/target/qnx/aarch64le/sbin/devb-virtio
+OK   /Users/diana/qnx800/target/qnx/aarch64le/usr/libexec/sshd-auth
+OK   qemu-system-aarch64 QEMU emulator version 11.1.3
+OK   Docker
+
+Prereqs look good.
+==> 4/8 SSH key
+OK   SSH key already exists: /Users/diana/.ssh/id_ed25519
+==> 5/8 QEMU image
+OK   image already built: /Users/diana/qnxprojects/targets/qemu-qnx800-aarch64le/output/ifs.bin
+==> 6/8 QEMU
+OK   QEMU already running (pid 43997)
+==> 7/8 Waiting for SSH on localhost:2222
+OK   SSH is accepting connections
+==> 8/8 Deploy and run examples/hello-qnx
+==> Compiling examples/hello-qnx in qnx-build
+QNX_HOST=/home/diana/qnx800/host/linux/x86_64
+QNX_TARGET=/home/diana/qnx800/target/qnx
+MAKEFLAGS=-I/home/diana/qnx800/target/qnx/usr/include
+Container build directory: /home/diana/qnx-macos-qemu/examples/hello-qnx
+/home/diana/qnx800/host/linux/x86_64/usr/bin/qcc
+cc: targets available in /home/diana/qnx800/host/linux/x86_64/etc/qcc:
+	12.2.0,gcc_ntoaarch64le
+rm -f hello-qnx
+qcc -Vgcc_ntoaarch64le -Wall -o hello-qnx hello-qnx.c
+/Users/diana/qnx-macos-qemu/examples/hello-qnx/hello-qnx: ELF 64-bit LSB pie executable, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /usr/lib/ldqnx-64.so.2, BuildID[md5/uuid]=7f44ca6ce9073ade04fbbe4dd0504df2, with debug_info, not stripped
+==> Copying hello-qnx to the guest
+==> Running /tmp/hello-qnx on the guest
+Hello QNX!
+sysname=QNX release=8.0.0 machine=QEMU_virt version=2026/06/05-16:21:14EDT
+
+==> Guest identity
+QNX qnx-a64 8.0.0 2026/06/05-16:21:14EDT QEMU_virt aarch64le
+---
+     pid name                                                                            
+       1 /proc/boot/procnto-smp-instr                                                    
+       3 proc/boot/slogger2                                                              
+   12292 proc/boot/devc-serpl011                                                         
+   20486 proc/boot/ksh                                                                   
+   24581 proc/boot/fsevmgr                                                               
+   28679 proc/boot/devb-virtio                                                           
+   94216 system/bin/random                                                               
+  106505 system/bin/pipe                                                                 
+  118794 system/bin/devc-pty                                                             
+  122891 system/bin/dumper                                                               
+  126988 system/bin/io-sock                                                              
+  188432 system/bin/dhcpcd                                                               
+  213006 system/bin/sshd                                                                 
+  217101 system/bin/qconn                                                                
+  221199 system/bin/mqueue                                                               
+  245778 system/bin/io-usb-otg                                                           
+  839682 system/bin/sshd-session                                                         
+  856081 system/bin/sshd-session                                                         
+  856083 bin/sh                                                                          
+  868372 proc/boot/pidin                                                                 
+
+QNX SDP 8.0 guest is up.
+  ssh -p 2222 -i /Users/diana/.ssh/id_ed25519 root@localhost
+Stop it with:
+  ./scripts/down.sh

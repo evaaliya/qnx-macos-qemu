@@ -273,7 +273,6 @@ GitHub Actions runs `shellcheck` and `bash -n` on the scripts. It does not insta
 
 - [docs/TUTORIAL.md](docs/TUTORIAL.md) — codelab
 - [docs/PITFALLS.md](docs/PITFALLS.md) — each failure, with the command output
-- [docs/DEMO.md](docs/DEMO.md) — three-minute recording script
 - [AGENTS.md](AGENTS.md) — notes for coding agents
 
 ## License

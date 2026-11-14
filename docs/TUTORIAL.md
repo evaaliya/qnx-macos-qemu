@@ -4,7 +4,7 @@ Build a QNX 8.0 system for QEMU, boot it on your Mac, and run a program you comp
 
 | | |
 |---|---|
-| **You need** | A Mac with Apple Silicon or Intel, Docker Desktop (or Colima on an older Intel macOS), and a QNX SDP 8.0 license. No QNX board. |
+| **You need** | A Mac with Apple Silicon or Intel, Docker Desktop, and a QNX SDP 8.0 license. No QNX board. |
 | **QNX** | SDP 8.0, installed in `~/qnx800`, plus the Linux 64-bit host tools. |
 | **Target** | QEMU, `aarch64le`, machine `virt`. |
 | **Toolchain** | `qcc -Vgcc_ntoaarch64le` (GCC 12.2.0) from the SDP's Linux host tools, inside Docker. The same compiler is `ntoaarch64-gcc`. |
@@ -54,7 +54,7 @@ qemu-system-aarch64 --version
 QEMU emulator version 11.1.3
 ```
 
-On an Intel Mac, `brew install qemu` may build from source (Homebrew Tier 3); `sudo port install qemu` from MacPorts is the alternative.
+On an Intel Mac `brew install qemu` can take a while.
 
 Open Docker Desktop and wait until it is running.
 

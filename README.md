@@ -6,36 +6,15 @@ This guide gets a Mac from an empty terminal to a QNX SDP 8.0 guest running unde
 ./scripts/up.sh
 ```
 
-It covers every Mac that can run current Docker Desktop: Apple Silicon (M1 and later) and Intel. The steps are the same on both. Where an Intel Mac differs, the step says so, and [Intel Macs](#intel-macs) collects the differences and the alternatives. The command output in this file was captured on 2026-11-14 on an Apple Silicon MacBook Air, macOS 15.8.3 (`24H314`). The Intel path has not been run on Intel hardware for this repository yet; `./scripts/doctor.sh` checks the things that differ.
+Any Mac works, Apple Silicon or Intel. The steps are the same; `./scripts/up.sh` detects which Mac it is on and says what to fix if something does not match. The output in this file was captured on 2026-11-14 on an Apple Silicon MacBook Air, macOS 15.8.3 (`24H314`). See [Intel Macs](#intel-macs) for the few differences.
 
 Stop the guest with `./scripts/down.sh`.
 
-**What you need:** a Mac (see [Which Mac do you have](#which-mac-do-you-have)), a free myQNX account, and the tools in steps 1 to 8 (Homebrew, Git, Docker Desktop, QEMU, QNX Software Center, SDP 8.0). **How long it takes:** the installs are mostly downloads. The first `./scripts/up.sh` builds a Docker image, which took about 30 minutes here. After that a boot takes about 15 seconds on Apple Silicon. Expect it to be several times slower on Intel.
-
-## Which Mac do you have
-
-Run these three commands in the terminal you will use for the rest of the guide:
-
-```bash
-uname -m
-sysctl -n hw.optional.arm64
-sysctl -n sysctl.proc_translated
-```
-
-| Output | Mac | What to do |
-|--------|-----|-----------|
-| `arm64`, `1`, `0` | Apple Silicon, native terminal | Follow the guide as written. This is the tested path. |
-| `x86_64`, `1`, `1` | Apple Silicon, but this terminal runs under Rosetta | Open a native terminal first (Finder → Applications → Utilities → Terminal → Get Info → untick **Open using Rosetta**), or run `arch -arm64 /bin/zsh -l`. `./scripts/doctor.sh` stops on this case. |
-| `x86_64`, an error or `0`, then `0` | Intel | Follow the guide, and read [Intel Macs](#intel-macs) before step 3. |
-
-`uname -m` alone cannot tell the last two rows apart. The scripts use the same `sysctl` values (`qnx_host_kind` in [scripts/lib.sh](scripts/lib.sh)).
+**What you need:** a Mac, a free myQNX account, and the tools in steps 1 to 8 (Homebrew, Git, Docker Desktop, QEMU, QNX Software Center, SDP 8.0). **How long it takes:** the installs are mostly downloads. The first `./scripts/up.sh` builds a Docker image, which took about 30 minutes here. After that a boot takes about 15 seconds on Apple Silicon. Expect it to be several times slower on Intel.
 
 ## 1. Install Homebrew
 
-Install Homebrew from [brew.sh](https://brew.sh), then open a new terminal. Homebrew lives in `/opt/homebrew` on Apple Silicon and in `/usr/local` on Intel. The scripts find tools on `PATH` and do not assume either.
-
-On Intel, Homebrew is a Tier 3 platform since September 2026: no new prebuilt bottles, and Homebrew plans to stop running on Intel in September 2027. See [Intel Macs](#intel-macs) for MacPorts as the alternative.
-
+Install Homebrew from [brew.sh](https://brew.sh), then open a new terminal.
 **You should see** a version line. On this machine `brew --version` printed:
 
 ```text
@@ -59,7 +38,7 @@ git version 2.50.1 (Apple Git-155)
 
 ## 3. Install Docker Desktop and start it
 
-Install [Docker Desktop for Mac](https://www.docker.com/products/docker-desktop/) and wait until the engine is running. Pick the download that matches the table above: **Apple Silicon** or **Intel chip**. Docker Desktop supports the current macOS and the two before it. An Intel Mac on an older macOS needs [Colima](#intel-macs) instead.
+Install [Docker Desktop for Mac](https://www.docker.com/products/docker-desktop/) and wait until the engine is running. Pick the **Apple Silicon** or **Intel chip** download to match your Mac.
 
 **You should see** a client and a server. On this machine `docker version` printed:
 
@@ -72,9 +51,7 @@ Server: Docker Desktop 4.99.0 (245822)
  Engine:
   Version:          29.9.3
   OS/Arch:          linux/arm64
-```
-
-On Intel both `OS/Arch` lines say `amd64`. The full `docker version` listing is in [docs/evidence/versions.txt](docs/evidence/versions.txt).
+``` The full `docker version` listing is in [docs/evidence/versions.txt](docs/evidence/versions.txt).
 
 ## 4. Install QEMU
 
@@ -91,8 +68,6 @@ Copyright (c) 2003-2026 Fabrice Bellard and the QEMU Project developers
 ```
 
 `brew list --versions qemu` printed `qemu 11.1.3`.
-
-On Intel, `brew install qemu` may compile QEMU from source because Intel bottles are no longer built. That can take a long time. MacPorts is the alternative: `sudo port install qemu`. Either way, `file "$(command -v qemu-system-aarch64)"` should say `x86_64` on Intel and `arm64` on Apple Silicon. `./scripts/doctor.sh` prints a `NOTE` if an Apple Silicon Mac has the x86_64 build.
 
 ## 5. Install VS Code (optional)
 
@@ -117,7 +92,7 @@ defaults read "/Applications/Visual Studio Code.app/Contents/Info" CFBundleShort
 
 ## 7. Install QNX Software Center
 
-Install QNX Software Center for macOS from the myQNX account and open it. It is an x86_64 application: on Intel it runs natively, on Apple Silicon macOS runs it through Rosetta and may ask to install Rosetta the first time.
+Install QNX Software Center for macOS from the myQNX account and open it. On Apple Silicon, macOS may ask to install Rosetta the first time.
 
 **You should see** the application. On this machine:
 
@@ -257,31 +232,12 @@ Full log: [docs/evidence/up-second.log](docs/evidence/up-second.log). There is n
 
 ## Intel Macs
 
-Everything above applies. These are the differences, each with the check that catches it.
+Same steps, same command. The scripts handle the rest:
 
-| Area | Apple Silicon | Intel | Check |
-|------|---------------|-------|-------|
-| QEMU accelerator | TCG (HVF stops in `gic_v3.c:966`) | TCG only. HVF runs guests of the host's own architecture, and this guest is `aarch64` | `run.sh` and `doctor.sh` refuse `QNX_QEMU_ACCEL=hvf` on Intel |
-| Boot time | about 15 s | slower: every guest instruction is translated to x86_64 | `up.sh` waits up to 180 s on Apple Silicon and 600 s on Intel. Override with `QNX_BOOT_TIMEOUT=900 ./scripts/up.sh` |
-| Docker image `qnx800` (`linux/amd64`) | emulated | native, so the first build is usually faster | `doctor.sh` prints the Docker server architecture |
-| QNX Software Center | through Rosetta | native | — |
-| QEMU package | Homebrew bottle | Homebrew builds from source (Tier 3), or MacPorts | `doctor.sh` checks that the QEMU binary matches the CPU |
-| RAM | — | Docker plus a 1 GB guest is tight below 8 GB | `doctor.sh` prints a `NOTE` |
+- The guest boots more slowly (no hardware acceleration for an ARM guest on Intel), so `up.sh` waits longer for it.
+- `brew install qemu` can take a while on Intel, because Homebrew no longer ships prebuilt Intel packages.
 
-**Alternatives when the default tools are not available on an Intel Mac.** These were not run for this repository. They are listed so you are not stuck, and `./scripts/doctor.sh` checks the result the same way.
-
-- **macOS too old for Docker Desktop.** Use [Colima](https://github.com/abiosoft/colima), which gives the same `docker` command without Docker Desktop:
-
-  ```bash
-  brew install colima docker      # or: sudo port install colima docker
-  colima start --cpu 4 --memory 6 --mount "$HOME:w"
-  docker info --format '{{.Architecture}}'   # x86_64
-  ```
-
-  The `--mount "$HOME:w"` part matters: the `qnx-build` container writes the QNX image into your home directory.
-- **Homebrew no longer works, or building QEMU from source fails.** Install [MacPorts](https://www.macports.org/install.php), then `sudo port install qemu`. Put `/opt/local/bin` on `PATH` before running the scripts.
-
-If the boot times out on Intel, read the end of `~/qnxprojects/targets/qemu-qnx800-aarch64le/output/serial.log` first. If it is still printing startup lines, the guest is slow, not broken: raise `QNX_BOOT_TIMEOUT`. If it stopped, see [docs/PITFALLS.md](docs/PITFALLS.md).
+This path has not been run on Intel hardware for this repository yet.
 
 ## Evidence of QNX use
 

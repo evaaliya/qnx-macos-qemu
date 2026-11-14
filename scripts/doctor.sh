@@ -24,16 +24,10 @@ case "$host_kind" in
     ;;
   apple-silicon-rosetta)
     bad "native arm64 shell. This terminal runs as x86_64 under Rosetta on an Apple Silicon Mac."
-    echo "     x86_64 QEMU and Homebrew under Rosetta are slower and were not tested."
-    echo "     Open a native terminal (Get Info on Terminal.app: untick \"Open using Rosetta\"),"
-    echo "     or run: arch -arm64 /bin/zsh -l"
+    echo "     Run: arch -arm64 /bin/zsh -l   then re-run ./scripts/up.sh"
     ;;
   intel)
-    echo "OK   Intel Mac (x86_64). Supported, with differences:"
-    echo "     - The guest runs under TCG only. HVF cannot run an aarch64 guest on x86_64."
-    echo "     - Boot is slower; up.sh waits up to $(qnx_default_boot_timeout)s for SSH (QNX_BOOT_TIMEOUT)."
-    echo "     - The qnx800 Docker image is linux/amd64 and runs natively, without emulation."
-    echo "     - The logs in docs/evidence come from Apple Silicon. See README, \"Intel Macs\"."
+    echo "OK   Intel Mac (x86_64). The guest boots more slowly here; up.sh waits up to $(qnx_default_boot_timeout)s."
     if [[ "${QNX_QEMU_ACCEL:-tcg}" == "hvf" ]]; then
       bad "QNX_QEMU_ACCEL=hvf cannot work on Intel. Unset it."
     fi
@@ -76,8 +70,8 @@ check_cmd() {
 }
 
 if [[ "$host_kind" == "intel" ]]; then
-  qemu_hint="Install on the Mac: brew install qemu (Homebrew on Intel is Tier 3 and may build it from source), or: sudo port install qemu"
-  docker_hint="Install Docker Desktop for Mac (Intel chip) and start it. On a macOS too old for Docker Desktop, see README, \"Intel Macs\" (Colima)."
+  qemu_hint="Install on the Mac: brew install qemu (on Intel this can take a while)"
+  docker_hint="Install Docker Desktop for Mac (Intel chip) and start it."
 else
   qemu_hint="Install on the Mac: brew install qemu"
   docker_hint="Install Docker Desktop for Mac (Apple Silicon) and start it."

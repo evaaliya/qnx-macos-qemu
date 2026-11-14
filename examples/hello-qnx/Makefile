@@ -1,7 +1,8 @@
 # QNX SDP 8.0, target aarch64le.
 # qcc is the SDP driver. gcc_ntoaarch64le selects the aarch64le little-endian toolchain
 # (the ntoaarch64-gcc binary). Run this inside the qnx-build container after
-# sourcing qnxsdp-env.sh, or from the Mac with scripts/deploy-example.sh.
+# sourcing qnxsdp-env.sh, or from the Mac with scripts/run-on-qnx.sh
+# (scripts/deploy-example.sh calls that for this directory).
 
 CC := qcc
 QCC_SPEC := gcc_ntoaarch64le

@@ -1,6 +1,6 @@
 # Agents working in this repository
 
-This repo boots QNX SDP 8.0 on a Mac. QNX SDP 8.0 does not support macOS or ARM hosts ([Quickstart Guide, Installation](https://www.qnx.com/developers/docs/8.0/com.qnx.doc.qnxsdp.quickstart/topic/install_host.html)); Docker runs the Linux host tools, and Homebrew QEMU runs the `aarch64le` guest under TCG. Apple Silicon is the tested path. Intel has not been checked, because there is no Intel Mac; do not claim it has been run. Use the scripts. Do not invent a second launch path.
+This repo boots QNX SDP 8.0 on a Mac. QNX SDP 8.0 does not support macOS or ARM hosts ([Quickstart Guide, Installation](https://www.qnx.com/developers/docs/8.0/com.qnx.doc.qnxsdp.quickstart/topic/install_host.html)); Docker runs the Linux host tools, and Homebrew QEMU runs the `aarch64le` guest under TCG. Apple Silicon is the tested path. Intel has not been checked, because the author does not have an Intel Mac; do not claim it has been run. Use the scripts. Do not invent a second launch path.
 
 ## First-time setup
 

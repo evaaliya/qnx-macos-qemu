@@ -31,7 +31,7 @@ case "$host_kind" in
     qnx_human "This terminal is x86_64 under Rosetta on an Apple Silicon Mac. Open Terminal.app, run: arch -arm64 /bin/zsh -l    then: cd ~/qnx-macos-qemu && ./scripts/doctor.sh"
     ;;
   intel)
-    echo "OK   Intel Mac (x86_64). The guest is aarch64, so up.sh waits up to $(qnx_default_boot_timeout)s. This path has not been run: there is no Intel Mac in the test notes."
+    echo "OK   Intel Mac (x86_64). The guest is aarch64, so up.sh waits up to $(qnx_default_boot_timeout)s. This path has not been run: the author does not have an Intel Mac."
     if [[ "${QNX_QEMU_ACCEL:-tcg}" == "hvf" ]]; then
       bad "QNX_QEMU_ACCEL=hvf cannot work on Intel. Unset it."
     fi

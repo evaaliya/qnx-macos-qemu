@@ -2,7 +2,7 @@
 
 QNX SDP 8.0 does not support macOS, and it is not supported on hosts that use ARM processors. That is the Installation section of the [QNX SDP 8.0 Quickstart Guide](https://www.qnx.com/developers/docs/8.0/com.qnx.doc.qnxsdp.quickstart/topic/install_host.html). This repository is a workaround: Docker runs the Linux host tools, and QEMU runs the `aarch64le` guest.
 
-Checked on an Apple Silicon MacBook Air, macOS 15.8.3 (`24H314`), on 2026-11-14. Intel has not been checked, because there is no Intel Mac to run it on. `./scripts/up.sh` still detects which Mac it is on. See [Intel Macs](#intel-macs).
+Checked on an Apple Silicon MacBook Air, macOS 15.8.3 (`24H314`), on 2026-11-14. Intel has not been checked, because the author does not have an Intel Mac to run it on. `./scripts/up.sh` still detects which Mac it is on. See [Intel Macs](#intel-macs).
 
 ## Quick start
 
@@ -280,7 +280,7 @@ Full log: [docs/evidence/up-second.log](docs/evidence/up-second.log). There is n
 
 ## Intel Macs
 
-Same steps, same command. The scripts contain an Intel branch. It has not been run, because there is no Intel Mac to run it on.
+Same steps, same command. The scripts contain an Intel branch. It has not been run, because the author does not have an Intel Mac to run it on.
 
 - `up.sh` waits up to 600 seconds for guest SSH on Intel, and 180 seconds on Apple Silicon (`qnx_default_boot_timeout` in [scripts/lib.sh](scripts/lib.sh)). That longer wait has not been measured against a real Intel boot.
 - `brew install qemu` may compile from source. Homebrew 7.0.0 moved Intel macOS to Tier 3: existing bottles can still be installed, and new or updated formulae are no longer built as Intel bottles ([Homebrew 7.0.0](https://brew.sh/2026/09/13/homebrew-7.0.0/)).

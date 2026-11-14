@@ -134,6 +134,28 @@ Copyright (c) 2003-2026 Fabrice Bellard and the QEMU Project developers
 
 The editor is optional. This repository does not use Create Virtual Target. See the table above. SDP 8.0 has no `~/qnx800/host/darwin`, so the toolkit's `host/darwin/x86_64 is not a directory` message is expected.
 
+The QNX Toolkit extension id is `qnx.qnx-vscode` (publisher `qnx`, name `qnx-vscode`). On this machine the installed folders are `~/.vscode/extensions/qnx.qnx-vscode-1.1.0` and `~/.cursor/extensions/qnx.qnx-vscode-1.1.0`, and `package.json` in the VS Code copy says `"displayName": "QNX Toolkit"` and `"version": "1.1.0"`.
+
+`which code` printed `code not found`. `which cursor` printed `cursor not found`. The binaries are still on disk:
+
+```text
+/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code
+/Applications/Cursor.app/Contents/Resources/app/bin/cursor
+```
+
+Running each of those with `--list-extensions` printed a line `qnx.qnx-vscode`. The extension was already installed in both editors, so `--install-extension` was not run.
+
+`code` is not on `PATH`. One way to put it there: open VS Code, press **Cmd+Shift+P**, and run **Shell Command: Install 'code' command in PATH**. `code --help` does not list that action, and `/usr/local/bin/code` is not on this Mac, so this shell cannot perform the palette click. `--list-extensions` was run with the full path above.
+
+If `qnx.qnx-vscode` is absent from the list, install it after `code` is on `PATH`, then list again:
+
+```bash
+code --install-extension qnx.qnx-vscode
+code --list-extensions
+```
+
+The same id works for Cursor once `cursor` is on `PATH`: `cursor --install-extension qnx.qnx-vscode`.
+
 **You should see** the app on disk. On this machine:
 
 ```text

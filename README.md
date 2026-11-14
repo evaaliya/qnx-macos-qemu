@@ -1,18 +1,6 @@
 # QNX SDP 8.0 on a Mac
 
-**This repository walks you through the steps. When you open a QNX or Docker page, come back here and continue from the step where you stopped.**
-
 QNX SDP 8.0 does not support macOS, and it is not supported on hosts that use ARM processors. That is the Installation section of the [QNX SDP 8.0 Quickstart Guide](https://www.qnx.com/developers/docs/8.0/com.qnx.doc.qnxsdp.quickstart/topic/install_host.html). This repository is a workaround: Docker runs the Linux host tools, and QEMU runs the `aarch64le` guest.
-
-## If the official QNX docs say X, do Y on a Mac
-
-| Official docs say | On this Mac |
-|---|---|
-| In QNX Toolkit, click **QNX TARGETS** and **Add new QNX Virtual Target**, then pick `qemu`, `vmware`, `vbox`, or `qvm`, then `x86_64` or `aarch64le` ([Managing targets](https://www.qnx.com/developers/docs/8.0/com.qnx.doc.qnxtoolkit.user_guide/topic/managing_targets.html)) | Do not. That action runs `mkqnximage` with the Mac host tools. Run `./scripts/up.sh` from this repository instead. |
-| Use `~/qnx800/host/darwin` | That directory is not part of SDP 8.0. On this machine `ls ~/qnx800/host/darwin` fails. The compiler that exists is `~/qnx800/host/linux/x86_64/usr/bin/qcc`, and it runs inside the `qnx-build` container. The toolkit message `host/darwin/x86_64 is not a directory` is the expected result of looking for a Mac compiler. |
-| On the host, `source ~/qnx800/qnxsdp-env.sh` and run `mkqnximage` | Do not run that on the Mac. `qnxsdp-env.sh` on this machine sets `QNX_HOST` to `host/win64/x86_64` for every `uname -s` other than `Linux`, and there is no Windows compiler here either. `./scripts/up.sh` runs `mkqnximage` inside the Linux container. |
-| Install package `com.qnx.qnx800.quickstart.qemu`, unpack it, `source qnxsdp-env.sh`, and run `mkqnximage --run` ([QSTI for QEMU](https://www.qnx.com/developers/docs/qnxeverywhere/com.qnx.doc.target_images/topic/qsti_qemu/getting_started.html)) | Do not. That image is a prebuilt x86_64 desktop guest. This repository builds an `aarch64le` QEMU image with `./scripts/up.sh`. |
-| Install SDP from the QNX Software Center GUI, or with `qnxsoftwarecenter_clt` | Do [step 8](#8-install-sdp-80-and-the-linux-host-tools). In the GUI: **Add Installation**, choose **QNX Software Development Platform 8.0** `[com.qnx.qnx800]`, destination `~/qnx800`, then **Manage Installation → Available**, search `Host Tools`, install **QNX SDP Host Tools (Linux 64-bit)** `com.qnx.qnx800.host.linux.x86_64`. On the command line, only after you have exported `MYQNX_USER` and `MYQNX_PASSWORD` in your own terminal: `-mirror`, then `-installBaseline com.qnx.qnx800 -destination ~/qnx800`, then one `-installPackage` for `com.qnx.qnx800.host.linux.x86_64,com.qnx.qnx800.target.qemuvirt,com.qnx.qnx800.target.driver.virtio.devb`. Do not pass `-cleanInstall`. |
 
 Checked on an Apple Silicon MacBook Air, macOS 15.8.3 (`24H314`), on 2026-11-14. Intel has not been checked, because there is no Intel Mac to run it on. `./scripts/up.sh` still detects which Mac it is on. See [Intel Macs](#intel-macs).
 
@@ -22,8 +10,8 @@ Do these four yourself. Each one needs an account, a password, or a click:
 
 1. **Homebrew.** Install it from [brew.sh](https://brew.sh). The installer asks you to confirm in the terminal and then asks for your Mac password ([Homebrew installation](https://docs.brew.sh/Installation)).
 2. **Docker Desktop.** Install it and open it. There is a download for Apple silicon and a download for Intel ([Install Docker Desktop on Mac](https://docs.docker.com/desktop/setup/install/mac-install/)). Open `Docker.dmg`, drag Docker to Applications, and double-click `Docker.app`. The first launch shows the Docker Subscription Service Agreement: click **Accept**. The current installer does not ask for a password on that first launch. Docker Desktop will not run until you accept.
-3. **A myQNX account and the free non-commercial license.** The clicks are in [Account, license, and QNX Software Center](#account-license-and-qnx-software-center). An agent cannot click through that account.
-4. **QNX Software Center for macOS.** The same section has the download clicks. Open the installer. On this Mac, `file` reports the app as `Mach-O 64-bit executable x86_64`. Opening an Intel app on Apple silicon asks you to install Rosetta and to enter your Mac user name and password ([Apple: Intel-based apps on Apple silicon](https://support.apple.com/en-us/102527)).
+3. **A myQNX account and the free non-commercial license.** Create the account, request the license, and deploy it to yourself at [qnx.com/getqnx](https://www.qnx.com/getqnx). An agent cannot click through that account.
+4. **QNX Software Center for macOS**, from your myQNX account ([download group](https://www.qnx.com/download/group.html?programid=29178)). Open the installer. On this Mac, `file` reports the app as `Mach-O 64-bit executable x86_64`. Opening an Intel app on Apple silicon asks you to install Rosetta and to enter your Mac user name and password ([Apple: Intel-based apps on Apple silicon](https://support.apple.com/en-us/102527)).
 
 Clone into your home directory. The Docker container bind-mounts `$HOME`, so a clone outside it is invisible to the build:
 
@@ -36,26 +24,6 @@ Paste this to an agent in Cursor or Claude Code:
 > Read AGENTS.md in ~/qnx-macos-qemu and set up QNX on this Mac. When you need me to click something or type a password, stop and say exactly what.
 
 The agent follows [AGENTS.md](AGENTS.md). When a script prints a line that starts with `HUMAN ACTION:`, it quotes that line and waits.
-
-## Account, license, and QNX Software Center
-
-Open [qnx.com/getqnx](https://www.qnx.com/getqnx). The account form lives on that site, so this page has to open. The labels below are the ones on that page on 2026-11-14. After each click, come back here.
-
-1. If you have no myQNX account, click **create a myQNX account**. Finish the form, then open [qnx.com/getqnx](https://www.qnx.com/getqnx) again.
-2. If you already have an account, click **click here to enter your credentials** and sign in. The page sends you back to the free-license page.
-3. On that page, while you are logged in, the heading is **Step 2: Accept the terms and request the license**. Accept the non-commercial terms and request the license. The page says the license is deposited into your myQNX account and that QNX also sends an email.
-4. The next heading is **Step 3: Accept & Deploy the license in your myQNX account**.
-   - Open the myQNX License Manager at [qnx.com/account/dashboard](https://www.qnx.com/account/dashboard/). The getqnx page says the license shows up there after the request is processed.
-   - Click **Accept License**.
-   - Click the product's **Users** field, then click **Deploy**.
-   - Enter your own myQNX account email address, then click **Save**.
-5. The next heading is **Step 4: Download QNX Software Center and install QNX SDP 8.0**. Open [the QNX Software Center download group](https://www.qnx.com/download/group.html?programid=29178).
-   - Logged out, that page lists two installers: **QNX Software Center 2.0.4 Build 202501021438 - Linux Hosts** and **QNX Software Center 2.0.4 Build 202501021438 - Windows Hosts**. Do not download either one on a Mac. The QNX Software Center 2.0 note says 2.0 is not supported on macOS and tells you to keep using 1.7 ([that note](https://qdn.qnx.com/developers/articles/rel_6964_4.html)).
-   - Click **Archived Items**. The folder text says: "Here you can find QSC 1.7, which is necessary to install QNX SDP 7.x on macOS."
-   - Opened logged out on 2026-11-14, that archived folder returned no installer rows. Sign in first, then download the macOS installer from **Archived Items** and open the package.
-   - On this Mac the installed app is QNX Software Center 1.7.0, and `file` reports its binary as `Mach-O 64-bit executable x86_64`. If macOS asks to install Rosetta, click **Install** and enter your Mac user name and password ([Apple: Intel-based apps on Apple silicon](https://support.apple.com/en-us/102527)).
-
-SDP itself is [step 8](#8-install-sdp-80-and-the-linux-host-tools), after QEMU and Docker.
 
 ## Manual steps
 
@@ -130,31 +98,9 @@ Copyright (c) 2003-2026 Fabrice Bellard and the QEMU Project developers
 
 `brew list --versions qemu` printed `qemu 11.1.3`.
 
-## 5. Install VS Code or Cursor, and the QNX Toolkit (optional)
+## 5. Install VS Code (optional)
 
-The editor is optional. This repository does not use Create Virtual Target. See the table above. SDP 8.0 has no `~/qnx800/host/darwin`, so the toolkit's `host/darwin/x86_64 is not a directory` message is expected.
-
-The QNX Toolkit extension id is `qnx.qnx-vscode` (publisher `qnx`, name `qnx-vscode`). On this machine the installed folders are `~/.vscode/extensions/qnx.qnx-vscode-1.1.0` and `~/.cursor/extensions/qnx.qnx-vscode-1.1.0`, and `package.json` in the VS Code copy says `"displayName": "QNX Toolkit"` and `"version": "1.1.0"`.
-
-`which code` printed `code not found`. `which cursor` printed `cursor not found`. The binaries are still on disk:
-
-```text
-/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code
-/Applications/Cursor.app/Contents/Resources/app/bin/cursor
-```
-
-Running each of those with `--list-extensions` printed a line `qnx.qnx-vscode`. The extension was already installed in both editors, so `--install-extension` was not run.
-
-`code` is not on `PATH`. One way to put it there: open VS Code, press **Cmd+Shift+P**, and run **Shell Command: Install 'code' command in PATH**. `code --help` does not list that action, and `/usr/local/bin/code` is not on this Mac, so this shell cannot perform the palette click. `--list-extensions` was run with the full path above.
-
-If `qnx.qnx-vscode` is absent from the list, install it after `code` is on `PATH`, then list again:
-
-```bash
-code --install-extension qnx.qnx-vscode
-code --list-extensions
-```
-
-The same id works for Cursor once `cursor` is on `PATH`: `cursor --install-extension qnx.qnx-vscode`.
+Install [Visual Studio Code](https://code.visualstudio.com/) if you want an editor. Cursor takes the same extension. This repository does not require either editor, and it does not use the QNX Toolkit's Create Virtual Target flow. The extension id is `qnx.qnx-vscode`. SDP 8.0 has no `~/qnx800/host/darwin`, so the toolkit's `host/darwin/x86_64 is not a directory` message is expected.
 
 **You should see** the app on disk. On this machine:
 
@@ -163,15 +109,19 @@ defaults read "/Applications/Visual Studio Code.app/Contents/Info" CFBundleShort
 1.103.2
 ```
 
+`code` was not on `PATH` in the terminal that recorded this. The app itself was installed.
+
 ## 6. Create a myQNX account and get the free license
 
-Follow [Account, license, and QNX Software Center](#account-license-and-qnx-software-center) through **Save** on the Deploy dialog. Do not stop on the QNX page.
+1. Open [qnx.com/getqnx](https://www.qnx.com/getqnx).
+2. Create a myQNX account.
+3. Request the free non-commercial QNX SDP 8.0 license and deploy it to that account.
 
 **You should see** the license attached to your myQNX account, and QNX Software Center able to sign in with it. This checkout did not re-run the website wizard. The installed result is the next step.
 
 ## 7. Install QNX Software Center
 
-Follow the download clicks in [Account, license, and QNX Software Center](#account-license-and-qnx-software-center), then open the package. On this Apple Silicon Mac, `file "/Applications/QNX Software Center.app/Contents/MacOS/qnxsoftwarecenter"` printed `Mach-O 64-bit executable x86_64`. macOS asks you to install Rosetta the first time you open an Intel app, and that install asks for your Mac user name and password ([Apple: Intel-based apps on Apple silicon](https://support.apple.com/en-us/102527)).
+Install QNX Software Center for macOS from the myQNX account and open it. On this Apple Silicon Mac, `file "/Applications/QNX Software Center.app/Contents/MacOS/qnxsoftwarecenter"` printed `Mach-O 64-bit executable x86_64`. macOS asks you to install Rosetta the first time you open an Intel app, and that install asks for your Mac user name and password ([Apple: Intel-based apps on Apple silicon](https://support.apple.com/en-us/102527)).
 
 **You should see** the application. On this machine:
 
@@ -326,6 +276,8 @@ Full log: [docs/evidence/up-second.log](docs/evidence/up-second.log). There is n
 
 `QNX_QEMU_ACCEL=hvf` is not the default. On this image it stops in `gic_v3.c:966` and SSH never comes up. See [docs/PITFALLS.md](docs/PITFALLS.md).
 
+`./scripts/new-project.sh NAME` creates `~/qnxprojects/NAME`. `./scripts/run-on-qnx.sh PATH` builds that project and runs it on the guest. `./scripts/deploy-example.sh` only calls `run-on-qnx.sh` for `examples/hello-qnx`. After `Hello QNX!`, continue in [docs/TUTORIAL.md](docs/TUTORIAL.md).
+
 ## Intel Macs
 
 Same steps, same command. The scripts contain an Intel branch. It has not been run, because there is no Intel Mac to run it on.
@@ -376,10 +328,6 @@ GitHub Actions runs `shellcheck` and `bash -n` on the scripts. It does not insta
 - [docs/TUTORIAL.md](docs/TUTORIAL.md) — part 2, your own program
 - [docs/PITFALLS.md](docs/PITFALLS.md) — each failure, with the command output
 - [AGENTS.md](AGENTS.md) — notes for coding agents
-
-## Next: build your own program
-
-Once `./scripts/up.sh` has printed `Hello QNX!`, the install is finished. Create a project, change it, and run it on the guest: [docs/TUTORIAL.md](docs/TUTORIAL.md).
 
 ## License
 

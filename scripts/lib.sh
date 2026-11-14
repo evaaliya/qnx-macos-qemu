@@ -17,6 +17,15 @@ QNX_MACOS_QEMU_LIB=1
 : "${QNX_SSH_KEY:=$HOME/.ssh/id_ed25519}"
 : "${QNX_HOSTNAME:=qnx-a64}"
 
+# Docker Desktop 4.89 and later installs the CLI here and adds it to PATH for new
+# terminals. A script started from an agent shell may not have that PATH yet.
+if [[ -x "${HOME}/.docker/bin/docker" ]]; then
+  case ":${PATH}:" in
+    *":${HOME}/.docker/bin:"*) ;;
+    *) export PATH="${HOME}/.docker/bin:${PATH}" ;;
+  esac
+fi
+
 # Which Mac this is. Prints one of:
 #   apple-silicon          arm64 hardware, native shell
 #   apple-silicon-rosetta  arm64 hardware, but this shell runs as x86_64 under Rosetta
@@ -57,6 +66,17 @@ qnx_info() {
 qnx_die() {
   printf 'error: %s\n' "$*" >&2
   exit 1
+}
+
+# Something only a person can do: an account, a password, or a click.
+# Agents must quote the line verbatim and wait. Never put a secret in it.
+qnx_human() {
+  printf 'HUMAN ACTION: %s\n' "$*"
+}
+
+# True when the person has already exported both variables. Does not print them.
+qnx_myqnx_env_set() {
+  [[ -n "${MYQNX_USER:-}" && -n "${MYQNX_PASSWORD:-}" ]]
 }
 
 # Path relative to $HOME. The qnx-build container bind-mounts the Mac home

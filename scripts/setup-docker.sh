@@ -15,7 +15,11 @@ UPSTREAM="${QNX_DOCKER_UPSTREAM:-https://gitlab.com/qnx/projects/docker-mac.git}
 UPSTREAM_REF="${QNX_DOCKER_UPSTREAM_REF:-e2b8d0a4871f5f4284bbf9582aa081f4517eba31}"
 
 if ! docker info >/dev/null 2>&1; then
-  qnx_die "Docker daemon is not running. Start Docker Desktop and re-run ./scripts/setup-docker.sh"
+  if [[ ! -d /Applications/Docker.app && ! -d "$HOME/Applications/Docker.app" ]]; then
+    qnx_human "Install Docker Desktop for this Mac from https://docs.docker.com/desktop/setup/install/mac-install/ (Apple silicon download or Intel download). Open Docker.dmg, drag Docker to Applications, and double-click Docker.app. Click Accept on the Docker Subscription Service Agreement. Then re-run ./scripts/setup-docker.sh"
+    exit 1
+  fi
+  qnx_die "Docker daemon is not running. Start Docker Desktop with: open -a Docker    Wait until docker info succeeds, then re-run ./scripts/setup-docker.sh"
 fi
 
 image_exists() {

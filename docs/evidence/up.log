@@ -1,14 +1,15 @@
 ==> 1/8 Host doctor
-Host: macOS 15.8.3 (arm64)
-OK   Apple Silicon (arm64)
+Host: macOS 15.8.3 (arm64, apple-silicon)
+OK   Apple Silicon (arm64). This is the path the logs in docs/evidence were captured on.
 OK   ~/qnx800/qnxsdp-env.sh
 OK   Linux host tools (~/qnx800/host/linux/x86_64/usr/bin/qcc)
+OK   git (/usr/bin/git)
 OK   qemu-system-aarch64 (/opt/homebrew/bin/qemu-system-aarch64)
 OK   docker (/usr/local/bin/docker)
 OK   python3 (/Library/Frameworks/Python.framework/Versions/3.11/bin/python3)
 OK   ssh (/usr/bin/ssh)
 OK   scp (/usr/bin/scp)
-OK   Docker daemon
+OK   Docker daemon (aarch64)
 
 Host looks ready.
 ==> 2/8 Docker build environment
@@ -29,10 +30,10 @@ OK   SSH key already exists: ~/.ssh/id_ed25519
 OK   image already built: ~/qnxprojects/targets/qemu-qnx800-aarch64le/output/ifs.bin
 ==> 6/8 QEMU
 ==> Starting qemu-system-aarch64 (serial log: ~/qnxprojects/targets/qemu-qnx800-aarch64le/output/serial.log)
-==> 7/8 Waiting for SSH on localhost:2222
+==> 7/8 Waiting for SSH on localhost:2222 (up to 180s)
 OK   SSH is accepting connections
 ==> 8/8 Deploy and run examples/hello-qnx
-==> Compiling examples/hello-qnx in qnx-build
+==> Compiling qnx-macos-qemu/examples/hello-qnx in qnx-build
 QNX_HOST=/home/<user>/qnx800/host/linux/x86_64
 QNX_TARGET=/home/<user>/qnx800/target/qnx
 MAKEFLAGS=-I/home/<user>/qnx800/target/qnx/usr/include
@@ -68,10 +69,10 @@ QNX qnx-a64 8.0.0 2026/06/05-16:21:14EDT QEMU_virt aarch64le
   217101 system/bin/qconn                                                                
   221199 system/bin/mqueue                                                               
   245778 system/bin/io-usb-otg                                                           
-  684034 system/bin/sshd-session                                                         
-  700433 system/bin/sshd-session                                                         
-  700435 bin/sh                                                                          
-  712724 proc/boot/pidin                                                                 
+  688130 system/bin/sshd-session                                                         
+  704529 system/bin/sshd-session                                                         
+  704531 bin/sh                                                                          
+  716820 proc/boot/pidin                                                                 
 
 QNX SDP 8.0 guest is up.
   ssh -p 2222 -i ~/.ssh/id_ed25519 root@localhost

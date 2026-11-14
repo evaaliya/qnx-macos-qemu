@@ -1,6 +1,12 @@
 # Agents working in this repository
 
-This repo boots QNX SDP 8.0 on a Mac, Apple Silicon or Intel: Docker runs the Linux host tools, Homebrew QEMU runs the `aarch64le` guest under TCG. Apple Silicon is the tested path. Intel is supported by the scripts and has not been run on Intel hardware yet; do not claim it has. Use the scripts. Do not invent a second launch path.
+This repo boots QNX SDP 8.0 on a Mac. QNX SDP 8.0 does not support macOS or ARM hosts ([Quickstart Guide, Installation](https://www.qnx.com/developers/docs/8.0/com.qnx.doc.qnxsdp.quickstart/topic/install_host.html)); Docker runs the Linux host tools, and Homebrew QEMU runs the `aarch64le` guest under TCG. Apple Silicon is the tested path. Intel has not been checked, because there is no Intel Mac; do not claim it has been run. Use the scripts. Do not invent a second launch path.
+
+## First-time setup
+
+Follow [README.md](README.md) from the top: the warning, the table, Quick start, then [Account, license, and QNX Software Center](README.md#account-license-and-qnx-software-center), then Manual steps through `./scripts/up.sh`. A program of your own is [docs/TUTORIAL.md](docs/TUTORIAL.md). Do not restate those steps.
+
+After any command, if a script prints a line that starts with `HUMAN ACTION:`, quote that line to the person verbatim and wait. Do not ask for the myQNX password in chat, and do not write it into a file, a commit, or a log. `MYQNX_USER` and `MYQNX_PASSWORD` are read only when the person has already exported them in their own terminal. Do not pass `-cleanInstall`. Package ids and the command-line flags are in README step 8.
 
 ## What “it works” means
 
@@ -25,13 +31,17 @@ QNX qnx-a64 8.0.0 2026/06/05-16:21:14EDT QEMU_virt aarch64le
 | Goal | Command |
 |------|---------|
 | Full bring-up | `./scripts/up.sh` |
+| Homebrew git and QEMU, start Docker, then bring-up | `./scripts/bootstrap.sh` |
+| Guest smoke test | `./tests/smoke.sh` |
 | Stop QEMU | `./scripts/down.sh` |
 | Host checks only | `./scripts/doctor.sh` |
 | Docker image and container | `./scripts/setup-docker.sh` |
 | QNX packages | `./scripts/check-prereqs.sh` |
 | SSH key, without overwriting one | `./scripts/ensure-ssh-key.sh` |
 | Rebuild the QNX image | `./scripts/down.sh` then `./scripts/build-image.sh` |
-| Compile and run the example | `./scripts/deploy-example.sh` |
+| Compile and run the example | `./scripts/deploy-example.sh` (calls `run-on-qnx.sh`) |
+| Compile and run any project under `$HOME` | `./scripts/run-on-qnx.sh PATH` |
+| New project in `~/qnxprojects` | `./scripts/new-project.sh NAME` |
 
 `./scripts/up.sh` is idempotent: a second run leaves an existing image and a running QEMU in place and deploys the example again. `./scripts/setup-docker.sh` does not delete `qnx-build`. `./scripts/build-image.sh` refuses to run while QEMU has the disk open.
 
@@ -39,23 +49,7 @@ The guest keeps running after `up.sh` returns. Stop it with `down.sh`, which rea
 
 ## How a compile is supposed to happen
 
-The repository must be cloned under `$HOME`. The container mounts that directory at `/home/<user>` and has no `/Users` tree.
-
-Inside `qnx-build`:
-
-```bash
-source /usr/local/qnx/env/bin/activate
-source "$HOME/qnx800/qnxsdp-env.sh"
-qcc -Vgcc_ntoaarch64le -o hello-qnx hello-qnx.c
-```
-
-`qcc -V` on the test machine listed `12.2.0,gcc_ntoaarch64le`. Do not `source ~/qnx800/qnxsdp-env.sh` on the Mac and compile there: on macOS that script selects `host/win64`.
-
-SSH from the Mac, not from the container:
-
-```bash
-ssh -p 2222 -i ~/.ssh/id_ed25519 root@localhost
-```
+Use `./scripts/run-on-qnx.sh PATH`. The steps and the guest commands (`ssh`, `slog2info`, `pidin`) are in [docs/TUTORIAL.md](docs/TUTORIAL.md). The repository and the project both have to sit under `$HOME`, because the container mounts that directory and has no `/Users` tree. Do not `source ~/qnx800/qnxsdp-env.sh` on the Mac and compile there: on macOS that script selects `host/win64`.
 
 ## Rules that are easy to violate
 
@@ -71,4 +65,4 @@ ssh -p 2222 -i ~/.ssh/id_ed25519 root@localhost
 
 ## A new guest program
 
-Put it under `examples/`, build it with `qcc -Vgcc_ntoaarch64le` inside the container, copy it with `scp -P 2222`, and run it over SSH. `scripts/deploy-example.sh` is the pattern. Add the built binary to `.gitignore`.
+[docs/TUTORIAL.md](docs/TUTORIAL.md). `./scripts/new-project.sh NAME` writes `~/qnxprojects/NAME`. `./scripts/run-on-qnx.sh` builds it. `./scripts/deploy-example.sh` is that script pointed at `examples/hello-qnx`.

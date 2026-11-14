@@ -45,18 +45,32 @@ else
   echo "serial.log is missing" >"$OUT/serial.log"
 fi
 
-# The logs are committed. Replace this machine's home directory and user name
-# so they do not end up in the repository: $HOME -> ~, /home/<name> -> /home/<user>.
+# The logs are committed. In every file under docs/evidence/:
+#   $HOME -> ~
+#   /home/<name> -> /home/<user>
+#   the account name from id -un -> <user>
+# $HOME is replaced first. Replacing the bare name first would turn
+# /Users/<name> into /Users/<user>, and /Users/ would still be in the file.
 user="$(id -un)"
-for f in "$OUT/versions.txt" "$OUT/up.log" "$OUT/serial.log"; do
-  sed -i '' -e "s|$HOME|~|g" -e "s|/home/$user|/home/<user>|g" "$f"
-done
+while IFS= read -r f; do
+  sed -i '' \
+    -e "s|$HOME|~|g" \
+    -e "s|/home/$user|/home/<user>|g" \
+    -e "s|$user|<user>|g" \
+    "$f"
+done < <(find "$OUT" -type f)
 
 if grep -E -n 'BEGIN (OPENSSH |RSA |EC )?PRIVATE|MYQNX_PASSWORD=.+' "$OUT"/* >/dev/null 2>&1; then
   qnx_die "docs/evidence contains a secret-shaped line"
 fi
 if grep -E -n '/(Users|home)/[A-Za-z0-9_-]+' "$OUT"/* >/dev/null 2>&1; then
   qnx_die "docs/evidence still contains a personal home path"
+fi
+if grep -F -n "/Users/" "$OUT"/* >/dev/null 2>&1; then
+  qnx_die "docs/evidence still contains /Users/"
+fi
+if grep -F -n "$user" "$OUT"/* >/dev/null 2>&1; then
+  qnx_die "docs/evidence still contains the current user name"
 fi
 
 if [[ "$up_rc" -ne 0 ]]; then

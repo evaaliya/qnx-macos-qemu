@@ -15,8 +15,32 @@ jobs:
         run: shellcheck scripts/*.sh qemu-aarch64le/run.sh tests/smoke.sh
       - name: paths use ~ and <user>
         run: |
-          if git grep -nIE '/(Users|home)/[A-Za-z0-9_-]+' -- . ':!LICENSE'; then
-            echo "Write home directories as ~ or /home/<user> in docs and logs." >&2
+          set -euo pipefail
+          user="$(whoami)"
+          users_prefix="/Users"
+          # docs/evidence: literal Mac home prefix, and the current account name.
+          # Both are required. A name-only search misses a home prefix, and a
+          # prefix-only search misses the bare account name.
+          if git grep -nF "${users_prefix}/" -- docs/evidence; then
+            echo "docs/evidence contains a Mac home prefix. Write it as ~." >&2
+            exit 1
+          fi
+          if git grep -nF "$user" -- docs/evidence; then
+            echo "docs/evidence contains the current user name. Write it as <user>." >&2
+            exit 1
+          fi
+          # Whole tree: a real home path (/Users/<name>) and the account name.
+          # Notes that show the prefix with an ellipsis are not a home path.
+          if git grep -nIE "${users_prefix}/[A-Za-z0-9_-]+" -- . ':!LICENSE'; then
+            echo "Found a Mac home path. Write it as ~." >&2
+            exit 1
+          fi
+          if git grep -nF "$user" -- . ':!LICENSE'; then
+            echo "Found the current user name ($user) in the tree. Write it as <user>." >&2
+            exit 1
+          fi
+          if git grep -nIE '/home/[A-Za-z0-9_-]+' -- . ':!LICENSE'; then
+            echo "Write /home/<name> as /home/<user>." >&2
             exit 1
           fi
       - name: bash -n

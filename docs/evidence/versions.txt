@@ -1,4 +1,4 @@
-date: 2026-11-13T21:26:37Z
+date: 2026-11-14T03:11:29Z
 
 ===== sw_vers =====
 ProductName:		macOS
@@ -43,6 +43,13 @@ Server: Docker Desktop 4.99.0 (245822)
 QNX_HOST=/home/<user>/qnx800/host/linux/x86_64
 QNX_TARGET=/home/<user>/qnx800/target/qnx
 MAKEFLAGS=-I/home/<user>/qnx800/target/qnx/usr/include
+cc: targets available in /home/<user>/qnx800/host/linux/x86_64/etc/qcc:
+	12.2.0,gcc_ntox86_64	(default)
+	12.2.0,gcc_ntoaarch64le
+	12.2.0,gcc_ntox86_64_cxx
+	12.2.0,gcc_ntox86_64_gpp
+	12.2.0,gcc_ntoaarch64le_cxx
+	12.2.0,gcc_ntoaarch64le_gpp
 
 ===== file examples/hello-qnx/hello-qnx =====
 ~/qnx-macos-qemu/examples/hello-qnx/hello-qnx: ELF 64-bit LSB pie executable, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /usr/lib/ldqnx-64.so.2, BuildID[md5/uuid]=7f44ca6ce9073ade04fbbe4dd0504df2, with debug_info, not stripped

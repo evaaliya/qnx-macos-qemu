@@ -12,6 +12,6 @@ Path=0 -
 
 To exit QEMU, type <ctrl>a x
 
-Process count:20
+Process count:21
 Startup complete
 QNX qnx-a64 8.0.0 2026/06/05-16:21:14EDT QEMU_virt aarch64le

@@ -1,6 +1,6 @@
 # Agents working in this repository
 
-This repo boots QNX SDP 8.0 on a Mac with Apple Silicon: Docker runs the Linux host tools, Homebrew QEMU runs the `aarch64le` guest. Use the scripts. Do not invent a second launch path.
+This repo boots QNX SDP 8.0 on a Mac, Apple Silicon or Intel: Docker runs the Linux host tools, Homebrew QEMU runs the `aarch64le` guest under TCG. Apple Silicon is the tested path. Intel is supported by the scripts and has not been run on Intel hardware yet; do not claim it has. Use the scripts. Do not invent a second launch path.
 
 ## What “it works” means
 
@@ -63,6 +63,8 @@ ssh -p 2222 -i ~/.ssh/id_ed25519 root@localhost
 - Do not edit `~/qnx800`, `~/qnxprojects`, `~/docker-mac`, the `qnx-build` container, or the `qnx800` image by hand. The scripts are the supported way to rebuild the guest image.
 - Do not copy files from `gitlab.com/qnx/projects/docker-mac` into this repo. `setup-docker.sh` clones that project into `~/.cache/qnx-macos-qemu/docker-mac` and patches `ubuntu:20.04` to `ubuntu:22.04` there.
 - Do not pass `-machine virt-4.2`. QEMU 11 does not have it. `run.sh` uses `-machine virt`.
+- Detect the host with `qnx_host_kind` in `scripts/lib.sh`, not `uname -m`. Under Rosetta `uname -m` prints `x86_64` on Apple Silicon.
+- HVF never works on Intel: the guest is aarch64. `run.sh` and `doctor.sh` refuse it there.
 - Do not change the default accelerator to HVF. On 2026-11-14 `QNX_QEMU_ACCEL=hvf` stopped the guest in `gic_v3.c:966` and SSH never came up. The default is `-accel tcg -cpu cortex-a57`. See [docs/PITFALLS.md](docs/PITFALLS.md).
 - Do not create the SSH key after `mkqnximage`. The public key is copied into the image at build time.
 - Read [docs/PITFALLS.md](docs/PITFALLS.md) before debugging a boot failure. The serial log is `~/qnxprojects/targets/qemu-qnx800-aarch64le/output/serial.log`.

@@ -1,9 +1,9 @@
 ---
 name: qnx-macos-qemu
-description: Build and boot QNX SDP 8.0 for QEMU aarch64le on an Apple Silicon Mac with the scripts in this repository. Use when compiling a QNX guest program, running mkqnximage, or debugging a QEMU boot from this tree.
+description: Build and boot QNX SDP 8.0 for QEMU aarch64le on a Mac (Apple Silicon or Intel) with the scripts in this repository. Use when compiling a QNX guest program, running mkqnximage, or debugging a QEMU boot from this tree.
 ---
 
-# QNX SDP 8.0 on Apple Silicon
+# QNX SDP 8.0 on a Mac
 
 Use the scripts in this repository. Do not invent a second launch path, and do not edit `~/qnx800`, `~/docker-mac`, the `qnx-build` container, or the `qnx800` image by hand.
 
@@ -22,6 +22,8 @@ A QNX binary is ELF `ARM aarch64` with interpreter `/usr/lib/ldqnx-64.so.2`.
 | Compile and run the example | `./scripts/deploy-example.sh` |
 | Guest checks | `./tests/smoke.sh` |
 | Refresh `docs/evidence/` | `./scripts/collect-evidence.sh` |
+
+Host kind comes from `qnx_host_kind` in `scripts/lib.sh`: `apple-silicon` (tested), `intel` (TCG only, longer `QNX_BOOT_TIMEOUT`, untested on hardware), or `apple-silicon-rosetta` (rejected by `doctor.sh`).
 
 The repository must live under `$HOME`. Inside the container that path is `/home/<user>/...`, not `/Users/...`.
 

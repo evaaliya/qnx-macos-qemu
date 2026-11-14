@@ -23,6 +23,13 @@ CPU="cortex-a57"
 case "$ACCEL" in
   tcg) ;;
   hvf)
+    # HVF only runs a guest of the host's own architecture. On Intel there is no
+    # aarch64 hardware to hand the guest. hw.optional.arm64 is 1 on Apple Silicon,
+    # including under Rosetta, and missing on Intel.
+    if [[ "$(sysctl -n hw.optional.arm64 2>/dev/null || echo 0)" != "1" ]]; then
+      echo "error: QNX_QEMU_ACCEL=hvf needs Apple Silicon. This is an Intel Mac; use the default tcg." >&2
+      exit 1
+    fi
     CPU="host"
     echo "warning: QNX_QEMU_ACCEL=hvf was checked on 2026-11-14. The guest stopped in gic_v3.c:966 and SSH did not come up. The default is tcg." >&2
     ;;

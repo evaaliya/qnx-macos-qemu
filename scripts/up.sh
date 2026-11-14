@@ -63,12 +63,14 @@ PY
   disown || true
 fi
 
-qnx_info "7/8 Waiting for SSH on localhost:$QNX_SSH_PORT"
+boot_timeout="${QNX_BOOT_TIMEOUT:-$(qnx_default_boot_timeout)}"
+[[ "$boot_timeout" =~ ^[0-9]+$ ]] || qnx_die "QNX_BOOT_TIMEOUT must be a number of seconds. Got: $boot_timeout"
+qnx_info "7/8 Waiting for SSH on localhost:$QNX_SSH_PORT (up to ${boot_timeout}s)"
 qemu_launch_pid="${qemu_launch_pid:-0}"
 i=0
 ssh_up=0
 wait_start=$SECONDS
-while [[ "$i" -lt 90 ]]; do
+while [[ $((SECONDS - wait_start)) -lt "$boot_timeout" ]]; do
   i=$((i + 1))
   if qnx_ssh true >/dev/null 2>&1; then
     ssh_up=1
@@ -99,7 +101,7 @@ done
 if [[ "$ssh_up" -ne 1 ]]; then
   echo "Last lines of serial.log:" >&2
   tail -n 50 "$QNX_TARGET_DIR/output/serial.log" >&2 || true
-  qnx_die "Timed out waiting for SSH. See $QNX_TARGET_DIR/output/serial.log"
+  qnx_die "Timed out after ${boot_timeout}s waiting for SSH. See $QNX_TARGET_DIR/output/serial.log. A slow host can raise QNX_BOOT_TIMEOUT."
 fi
 echo "OK   SSH is accepting connections"
 

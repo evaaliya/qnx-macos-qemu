@@ -1,8 +1,8 @@
-# Pitfalls: QNX SDP 8.0 on an Apple Silicon Mac
+# Pitfalls: QNX SDP 8.0 on a Mac
 
 Each entry is a failure we hit bringing up a QNX 8.0 `aarch64le` QEMU guest on macOS. The scripts in this repository already apply the fix. The notes are here so the next person can recognise the symptom.
 
-Checked on 2026-11-14 on a MacBook Air (Apple Silicon), macOS 15.8.3, Docker Desktop 29, Homebrew QEMU 11.1.3, SDP 8.0 in `~/qnx800`.
+Pitfalls 1 to 9 were checked on 2026-11-14 on a MacBook Air (Apple Silicon), macOS 15.8.3, Docker Desktop 29, Homebrew QEMU 11.1.3, SDP 8.0 in `~/qnx800`.
 
 ## 1. Docker image build cannot find Python 3.11
 
@@ -145,3 +145,21 @@ QNX qnx-a64 8.0.0 2026/06/05-16:21:14EDT QEMU_virt aarch64le
 ```
 
 That run is [docs/evidence/up.log](evidence/up.log). It did not rebuild the image (`OK image already built`). A second `./scripts/up.sh` three seconds later printed `OK QEMU already running (pid 43997)` and did not call `mkqnximage`. That log is [docs/evidence/up-second.log](evidence/up-second.log).
+
+## 10. `doctor.sh` says `MISS native arm64 shell`
+
+**Symptom.** On an Apple Silicon Mac, `./scripts/doctor.sh` prints `Host: ... (x86_64, apple-silicon-rosetta)` and stops.
+
+**Cause.** The terminal itself runs under Rosetta, so every program it starts, including `uname -m`, reports `x86_64`. Homebrew, QEMU, and the scripts then take the Intel paths on Apple Silicon hardware, which is slower and untested. The scripts tell this apart from a real Intel Mac with `sysctl hw.optional.arm64` (1 on Apple Silicon, also under Rosetta) and `sysctl.proc_translated` (1 under Rosetta). Checked on 2026-11-14 with `arch -x86_64 /bin/bash ./scripts/doctor.sh`.
+
+**Fix.** Open a native terminal: Get Info on Terminal.app (or iTerm) and untick **Open using Rosetta**, or run `arch -arm64 /bin/zsh -l`. Then `uname -m` prints `arm64`.
+
+## 11. Intel Mac: `Timed out ... waiting for SSH`, or `hvf` refused
+
+**Not reproduced on Intel hardware.** These follow from how QEMU works and are checked by the scripts.
+
+**Symptom.** `./scripts/up.sh` on an Intel Mac waits for SSH and gives up, or `run.sh` prints `QNX_QEMU_ACCEL=hvf needs Apple Silicon`.
+
+**Cause.** HVF (Hypervisor.framework) runs a guest of the host's own CPU architecture. An Intel Mac has no aarch64 hardware to give the guest, so the only path is TCG, which translates every guest instruction. That is correct but slower, so `up.sh` waits up to 600 seconds on Intel instead of 180.
+
+**Fix.** Leave `QNX_QEMU_ACCEL` unset. Look at the tail of `output/serial.log`: if it is still printing startup lines, the guest is slow, not broken, and `QNX_BOOT_TIMEOUT=1200 ./scripts/up.sh` gives it more time. If it stopped, compare its last line with pitfalls 2, 3, and 6.

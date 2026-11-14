@@ -1,22 +1,22 @@
-# Codelab: QNX SDP 8.0 on a Mac with Apple Silicon
+# Codelab: QNX SDP 8.0 on a Mac
 
 Build a QNX 8.0 system for QEMU, boot it on your Mac, and run a program you compiled with the QNX toolchain.
 
 | | |
 |---|---|
-| **You need** | A Mac with Apple Silicon, Docker Desktop, and a QNX SDP 8.0 license. No QNX board. |
+| **You need** | A Mac with Apple Silicon or Intel, Docker Desktop (or Colima on an older Intel macOS), and a QNX SDP 8.0 license. No QNX board. |
 | **QNX** | SDP 8.0, installed in `~/qnx800`, plus the Linux 64-bit host tools. |
 | **Target** | QEMU, `aarch64le`, machine `virt`. |
 | **Toolchain** | `qcc -Vgcc_ntoaarch64le` (GCC 12.2.0) from the SDP's Linux host tools, inside Docker. The same compiler is `ntoaarch64-gcc`. |
 | **Time** | About 30 minutes the first time, almost all of it the Docker image build. After that, `./scripts/up.sh` is about half a minute. |
-| **Checked** | 2026-11-14, MacBook Air, macOS 15.8.3, Homebrew QEMU 11.1.3, Docker image `qnx800`. Steps that were not repeated this session are marked. |
+| **Checked** | 2026-11-14, Apple Silicon MacBook Air, macOS 15.8.3, Homebrew QEMU 11.1.3, Docker image `qnx800`. Steps that were not repeated this session are marked. Not yet run on Intel hardware; the differences are in the README section [Intel Macs](../README.md#intel-macs). |
 
 ```text
-Mac (Apple Silicon)
+Mac (Apple Silicon or Intel)
 ├── Homebrew qemu-system-aarch64          boots the guest
-├── Docker container qnx-build            linux/amd64, your home directory mounted
+├── Docker container qnx-build            linux/amd64 (emulated on Apple Silicon, native on Intel)
 │   └── QNX Linux host tools              qcc, mkqnximage
-└── QEMU guest                            QNX SDP 8.0, aarch64le, SSH on port 2222
+└── QEMU guest (TCG)                      QNX SDP 8.0, aarch64le, SSH on 127.0.0.1:2222
     └── /tmp/hello-qnx                    prints Hello QNX!
 ```
 
@@ -54,6 +54,8 @@ qemu-system-aarch64 --version
 QEMU emulator version 11.1.3
 ```
 
+On an Intel Mac, `brew install qemu` may build from source (Homebrew Tier 3); `sudo port install qemu` from MacPorts is the alternative.
+
 Open Docker Desktop and wait until it is running.
 
 ## Step 3: One command
@@ -66,13 +68,13 @@ Open Docker Desktop and wait until it is running.
 
 What that command does, in order:
 
-1. Checks the Mac (Apple Silicon, SDP, Linux `qcc`, QEMU, Docker, `python3`, `ssh`, `scp`).
+1. Checks the Mac: Apple Silicon, Intel, or an Apple Silicon terminal under Rosetta (which it rejects); SDP, Linux `qcc`, QEMU and its architecture, Docker, `python3`, `ssh`, `scp`.
 2. Creates the Docker image `qnx800` and the container `qnx-build` if they are missing. The Dockerfile comes from a clone of the upstream QNX macOS project in `~/.cache`, with Ubuntu 22.04 instead of 20.04. An existing container is not deleted.
 3. Checks `startup-qemu-virt`, `devb-virtio`, and `sshd-auth`. If a QEMU package is missing and you exported `MYQNX_USER` and `MYQNX_PASSWORD`, it installs the package into `~/qnx800`. The password is not saved.
 4. Creates `~/.ssh/id_ed25519` if you do not already have that key. An existing key is left as it is.
 5. Builds the QEMU image with `mkqnximage` if `output/ifs.bin` is not there yet.
 6. Starts QEMU on the Mac, detached, with the serial console in `~/qnxprojects/targets/qemu-qnx800-aarch64le/output/serial.log`.
-7. Waits until SSH answers on port 2222.
+7. Waits until SSH answers on port 2222: up to 180 seconds on Apple Silicon, 600 on Intel, or `QNX_BOOT_TIMEOUT`.
 8. Compiles `examples/hello-qnx` in the container, copies it to the guest, and runs it.
 
 The first Docker build can take about 30 minutes. The QNX image build after that is much shorter. On the test machine the command that stopped the old guest and ran `scripts/build-image.sh` finished in about 19 seconds, and the build log contained:
@@ -171,5 +173,7 @@ Running it again when nothing is up prints that QEMU is not running and exits 0.
 | `sshd` starts but the connection resets | [Pitfall 6](PITFALLS.md) |
 | `cd: /Users/...: No such file or directory` inside Docker | [Pitfall 7](PITFALLS.md) |
 | `Permission denied (publickey)` | [Pitfall 8](PITFALLS.md) |
+| `MISS native arm64 shell` | [Pitfall 10](PITFALLS.md) |
+| `Timed out ... waiting for SSH` on an Intel Mac | [Pitfall 11](PITFALLS.md) |
 
 Package install by hand, if you would rather not put a myQNX password in the environment: QNX Software Center → Manage Installation → Available → search `qemu` → install `com.qnx.qnx800.target.qemuvirt` and `com.qnx.qnx800.target.driver.virtio.devb`.

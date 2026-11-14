@@ -17,6 +17,35 @@ QNX_MACOS_QEMU_LIB=1
 : "${QNX_SSH_KEY:=$HOME/.ssh/id_ed25519}"
 : "${QNX_HOSTNAME:=qnx-a64}"
 
+# Which Mac this is. Prints one of:
+#   apple-silicon          arm64 hardware, native shell
+#   apple-silicon-rosetta  arm64 hardware, but this shell runs as x86_64 under Rosetta
+#   intel                  x86_64 hardware
+# `uname -m` alone cannot tell the last two apart: both print x86_64.
+# hw.optional.arm64 does not exist on Intel, so a failed read means 0.
+qnx_host_kind() {
+  local arm translated
+  arm="$(sysctl -n hw.optional.arm64 2>/dev/null || echo 0)"
+  translated="$(sysctl -n sysctl.proc_translated 2>/dev/null || echo 0)"
+  if [[ "$arm" == "1" && "$translated" == "1" ]]; then
+    echo apple-silicon-rosetta
+  elif [[ "$arm" == "1" ]]; then
+    echo apple-silicon
+  else
+    echo intel
+  fi
+}
+
+# Seconds ./scripts/up.sh waits for guest SSH. TCG on Intel has to translate
+# every aarch64 instruction to x86_64, so it gets a longer default.
+qnx_default_boot_timeout() {
+  if [[ "$(qnx_host_kind)" == "intel" ]]; then
+    echo 600
+  else
+    echo 180
+  fi
+}
+
 qnx_repo_root() {
   cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd
 }

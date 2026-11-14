@@ -100,7 +100,11 @@ patch_dockerfile "$scripts_dir/Dockerfile"
 if ! image_exists; then
   qnx_info "Building ${QNX_BUILD_IMAGE}:latest from $scripts_dir"
   echo "    The first build downloads Ubuntu packages and can take about 30 minutes."
-  echo "    The image is linux/amd64. On Apple Silicon, Docker runs it under emulation."
+  if [[ "$(qnx_host_kind)" == "intel" ]]; then
+    echo "    The image is linux/amd64. On this Intel Mac it runs natively."
+  else
+    echo "    The image is linux/amd64. On Apple Silicon, Docker runs it under emulation."
+  fi
   (
     cd "$scripts_dir"
     bash ./docker-build-qnx-image.sh

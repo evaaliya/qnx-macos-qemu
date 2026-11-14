@@ -4,7 +4,7 @@ This repo boots QNX SDP 8.0 on a Mac. QNX SDP 8.0 does not support macOS or ARM 
 
 ## First-time setup
 
-Follow [README.md](README.md) from the top: the warning, the table, Quick start, then [Account, license, and QNX Software Center](README.md#account-license-and-qnx-software-center), then Manual steps through `./scripts/up.sh`. A program of your own is [docs/TUTORIAL.md](docs/TUTORIAL.md). Do not restate those steps.
+Follow [README.md](README.md) from Quick start through `./scripts/up.sh`. README steps 6 and 7 are the myQNX account, the license, and QNX Software Center. Tell the person to do those steps themselves. Do not click them and do not restate them. A program of your own is [docs/TUTORIAL.md](docs/TUTORIAL.md).
 
 After any command, if a script prints a line that starts with `HUMAN ACTION:`, quote that line to the person verbatim and wait. Do not ask for the myQNX password in chat, and do not write it into a file, a commit, or a log. `MYQNX_USER` and `MYQNX_PASSWORD` are read only when the person has already exported them in their own terminal. Do not pass `-cleanInstall`. Package ids and the command-line flags are in README step 8.
 

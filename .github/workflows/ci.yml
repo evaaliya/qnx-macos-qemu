@@ -13,6 +13,12 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y shellcheck
       - name: shellcheck
         run: shellcheck scripts/*.sh qemu-aarch64le/run.sh tests/smoke.sh
+      - name: paths use ~ and <user>
+        run: |
+          if git grep -nIE '/(Users|home)/[A-Za-z0-9_-]+' -- . ':!LICENSE'; then
+            echo "Write home directories as ~ or /home/<user> in docs and logs." >&2
+            exit 1
+          fi
       - name: bash -n
         run: |
           set -euo pipefail

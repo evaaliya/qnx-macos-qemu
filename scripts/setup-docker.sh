@@ -9,6 +9,10 @@ source "$ROOT/scripts/lib.sh"
 
 CACHE="${QNX_DOCKER_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/qnx-macos-qemu/docker-mac}"
 UPSTREAM="${QNX_DOCKER_UPSTREAM:-https://gitlab.com/qnx/projects/docker-mac.git}"
+# The upstream commit this repository was tested with (2025-04-29, "Add missing
+# .qnxbashrc"). Its scripts are executed below, so a newer upstream is not
+# picked up silently. Set QNX_DOCKER_UPSTREAM_REF to try another commit.
+UPSTREAM_REF="${QNX_DOCKER_UPSTREAM_REF:-e2b8d0a4871f5f4284bbf9582aa081f4517eba31}"
 
 if ! docker info >/dev/null 2>&1; then
   qnx_die "Docker daemon is not running. Start Docker Desktop and re-run ./scripts/setup-docker.sh"
@@ -46,8 +50,12 @@ patch_dockerfile() {
 }
 
 ensure_cache() {
-  local dir
+  local dir have
   if dir="$(scripts_dir_of "$CACHE")"; then
+    have="$(git -C "$CACHE" rev-parse HEAD 2>/dev/null || true)"
+    if [[ "$have" != "$UPSTREAM_REF" ]]; then
+      echo "warning: cache $CACHE is at ${have:-an unknown commit}, not the tested $UPSTREAM_REF." >&2
+    fi
     printf '%s\n' "$dir"
     return 0
   fi
@@ -58,9 +66,11 @@ ensure_cache() {
     qnx_die "git is required to clone $UPSTREAM"
   fi
   # Progress goes to stderr. Callers capture stdout as the scripts directory.
-  qnx_info "Cloning $UPSTREAM into $CACHE" >&2
+  qnx_info "Cloning $UPSTREAM into $CACHE at $UPSTREAM_REF" >&2
   mkdir -p "$(dirname "$CACHE")"
-  git clone --depth 1 "$UPSTREAM" "$CACHE"
+  git clone --quiet "$UPSTREAM" "$CACHE" >&2
+  git -C "$CACHE" checkout --quiet --detach "$UPSTREAM_REF" >&2 \
+    || qnx_die "Commit $UPSTREAM_REF is not in $UPSTREAM"
   dir="$(scripts_dir_of "$CACHE")" || qnx_die "Clone of $UPSTREAM did not contain docker-build-qnx-image.sh"
   printf '%s\n' "$dir"
 }

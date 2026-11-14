@@ -34,6 +34,8 @@ esac
 
 # QEMU 11 dropped the virt-4.2 machine. Serial goes to a file so the process
 # survives when it is not attached to a terminal.
+# The forwarded ports bind to 127.0.0.1. With no address QEMU listens on every
+# interface, which exposes guest SSH and qconn (no authentication) to the LAN.
 exec qemu-system-aarch64 \
   -machine virt \
   -cpu "$CPU" \
@@ -42,7 +44,7 @@ exec qemu-system-aarch64 \
   -m 1G \
   -drive file=output/disk-qemu.vmdk,if=none,id=drv0 \
   -device virtio-blk-device,drive=drv0 \
-  -netdev user,id=net0,hostfwd=tcp::2222-:22,hostfwd=tcp::8000-:8000 \
+  -netdev user,id=net0,hostfwd=tcp:127.0.0.1:2222-:22,hostfwd=tcp:127.0.0.1:8000-:8000 \
   -device virtio-net-device,netdev=net0,mac=52:54:00:b4:ae:64 \
   -pidfile output/qemu.pid \
   -nographic \

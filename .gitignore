@@ -23,6 +23,14 @@ docs/evidence/demo.md
 !docs/evidence/*.log
 !docs/evidence/*.txt
 
+# Local rules for coding agents. They are personal and stay on disk.
+# AGENTS.md is the public one and is tracked.
+.cursor/
+.agent/
+.agents/
+CLAUDE.local.md
+.claude/settings.local.json
+
 # SSH keys and credential files. Never commit these.
 id_ed25519
 id_ed25519.pub

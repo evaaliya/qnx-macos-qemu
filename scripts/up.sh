@@ -67,6 +67,7 @@ qnx_info "7/8 Waiting for SSH on localhost:$QNX_SSH_PORT"
 qemu_launch_pid="${qemu_launch_pid:-0}"
 i=0
 ssh_up=0
+wait_start=$SECONDS
 while [[ "$i" -lt 90 ]]; do
   i=$((i + 1))
   if qnx_ssh true >/dev/null 2>&1; then
@@ -90,7 +91,7 @@ while [[ "$i" -lt 90 ]]; do
     qnx_die "QEMU exited before SSH came up. See $QNX_TARGET_DIR/output/serial.log"
   fi
   if [[ $((i % 5)) -eq 0 ]]; then
-    echo "  still waiting ($((i * 2))s). Tail of serial.log:"
+    echo "  still waiting ($((SECONDS - wait_start))s). Tail of serial.log:"
     tail -n 3 "$QNX_TARGET_DIR/output/serial.log" 2>/dev/null || true
   fi
   sleep 2

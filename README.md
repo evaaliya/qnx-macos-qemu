@@ -10,6 +10,8 @@ Any Mac whose `uname -m` prints `arm64` is the machine this path is for: MacBook
 
 Stop the guest with `./scripts/down.sh`.
 
+**What you need:** an Apple Silicon Mac, a free myQNX account, and the tools in steps 1 to 8 (Homebrew, Git, Docker Desktop, QEMU, QNX Software Center, SDP 8.0). **How long it takes:** the installs are mostly downloads. The first `./scripts/up.sh` builds a Docker image, which took about 30 minutes here. After that a boot takes about 15 seconds.
+
 ## 1. Install Homebrew
 
 Install Homebrew from [brew.sh](https://brew.sh), then open a new terminal.
@@ -187,7 +189,7 @@ pwd
 ./scripts/up.sh
 ```
 
-The first time, building the Docker image `qnx800` can take about 30 minutes. `scripts/setup-docker.sh` clones [gitlab.com/qnx/projects/docker-mac](https://gitlab.com/qnx/projects/docker-mac) into `~/.cache/qnx-macos-qemu/docker-mac` and changes `FROM ubuntu:20.04` to `FROM ubuntu:22.04` before that build. Later runs reuse the image `qnx800:latest` and the container `qnx-build`. An existing container is not deleted.
+The first time, building the Docker image `qnx800` can take about 30 minutes. `scripts/setup-docker.sh` clones [gitlab.com/qnx/projects/docker-mac](https://gitlab.com/qnx/projects/docker-mac) into `~/.cache/qnx-macos-qemu/docker-mac` at the commit this repository was tested with (`e2b8d0a`), and changes `FROM ubuntu:20.04` to `FROM ubuntu:22.04` before that build. Later runs reuse the image `qnx800:latest` and the container `qnx-build`. An existing container is not deleted.
 
 **You should see** `Hello QNX!` from the guest, then `uname` and `pidin`. This is the run from 2026-11-14 after `./scripts/down.sh`. The whole script finished in 15 seconds. It did not rebuild the image. The full log is [docs/evidence/up.log](docs/evidence/up.log). The lines that show the guest are:
 
@@ -216,7 +218,7 @@ ssh -p 2222 -i ~/.ssh/id_ed25519 root@localhost
 uname -a
 ```
 
-`qconn` is forwarded to port 8000 on the Mac.
+`qconn` is forwarded to port 8000 on the Mac. Both forwarded ports, 2222 and 8000, listen on `127.0.0.1` only, so other machines on your network cannot reach the guest.
 
 Running `./scripts/up.sh` again does not rebuild the image and does not start a second QEMU. The second run on this machine finished in 3 seconds and printed:
 

@@ -163,6 +163,3 @@ That run is [docs/evidence/up.log](evidence/up.log). It did not rebuild the imag
 **Cause.** HVF (Hypervisor.framework) runs a guest of the host's own CPU architecture. An Intel Mac has no aarch64 hardware to give the guest, so the only path is TCG, which translates every guest instruction. That is correct but slower, so `up.sh` waits up to 600 seconds on Intel instead of 180.
 
 **Fix.** Leave `QNX_QEMU_ACCEL` unset. Look at the tail of `output/serial.log`: if it is still printing startup lines, the guest is slow, not broken, and `QNX_BOOT_TIMEOUT=1200 ./scripts/up.sh` gives it more time. If it stopped, compare its last line with pitfalls 2, 3, and 6.
-
-## Container hangs on license (read-only ~/.qnx/license)
-If the container stalls on start, check that ~/.qnx/license is writable and not read-only.

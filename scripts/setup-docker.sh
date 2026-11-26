@@ -88,6 +88,9 @@ start_if_stopped() {
   docker start "$QNX_BUILD_CONTAINER" >/dev/null
 }
 
+if qnx_container_exists && [[ "$(docker inspect -f '{{.Config.Image}}' qnx-build 2>/dev/null)" != *qnx800* ]]; then
+  qnx_die "Container qnx-build was made from another image. Remove it: docker rm -f qnx-build"
+fi
 if image_exists && qnx_container_exists; then
   echo "OK   Docker image ${QNX_BUILD_IMAGE}:latest already exists"
   start_if_stopped

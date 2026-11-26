@@ -51,7 +51,7 @@ exec qemu-system-aarch64 \
   -m 1G \
   -drive file=output/disk-qemu.vmdk,if=none,id=drv0 \
   -device virtio-blk-device,drive=drv0 \
-  -netdev user,id=net0,hostfwd=tcp:127.0.0.1:2222-:22,hostfwd=tcp:127.0.0.1:8000-:8000 \
+  -netdev user,id=net0,hostfwd=tcp:127.0.0.1:${QNX_SSH_PORT:-2222}-:22,hostfwd=tcp:127.0.0.1:8000-:8000 \
   -device virtio-net-device,netdev=net0,mac=52:54:00:b4:ae:64 \
   -pidfile output/qemu.pid \
   -nographic \

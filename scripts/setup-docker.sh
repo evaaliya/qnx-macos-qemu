@@ -112,6 +112,7 @@ if ! image_exists; then
   else
     echo "    The image is linux/amd64. On Apple Silicon, Docker runs it under emulation."
   fi
+  export DOCKER_DEFAULT_PLATFORM=linux/amd64
   (
     cd "$scripts_dir"
     bash ./docker-build-qnx-image.sh
